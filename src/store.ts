@@ -5,20 +5,22 @@ interface GameState {
     score: number;
     lives: number;
     currentLane: number; // 0-indexed
-    gameStatus: 'menu' | 'instructions' | 'playing' | 'paused' | 'gameover';
+    gameStatus: 'menu' | 'instructions' | 'playing' | 'paused' | 'gameover' | 'customizing';
     difficulty: DifficultyLevel;
     speedMultiplier: number;
+    playerColor: string;
 
     currentWasteItem: WasteItem | null;
 
     // Actions
     startGame: () => void;
     setDifficulty: (level: DifficultyLevel) => void;
+    setPlayerColor: (color: string) => void;
     moveLane: (direction: 'left' | 'right') => void;
     setLane: (laneIndex: number) => void;
     processCollision: (isCorrect: boolean) => void;
     resetGame: () => void;
-    setGameStatus: (status: 'menu' | 'instructions' | 'playing' | 'paused' | 'gameover') => void;
+    setGameStatus: (status: 'menu' | 'instructions' | 'playing' | 'paused' | 'gameover' | 'customizing') => void;
     randomizeWaste: () => void;
 }
 
@@ -50,6 +52,9 @@ export const useGameStore = create<GameState>((set, get) => ({
     difficulty: 'hard', // Default to hard to show all 4 lanes as requested
     speedMultiplier: INITIAL_SPEED,
     currentWasteItem: null,
+    playerColor: '#FFA500', // Default Orange
+
+    setPlayerColor: (color) => set({ playerColor: color }),
 
     startGame: () => {
         const { difficulty } = get();

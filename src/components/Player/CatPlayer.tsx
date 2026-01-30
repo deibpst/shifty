@@ -8,47 +8,47 @@ const LANE_WIDTH = 3.0;
 const LERP_SPEED = 10;
 
 export const CatPlayer: React.FC = () => {
-    const meshRef = useRef<THREE.Mesh>(null);
-
     const currentLane = useGameStore((state) => state.currentLane);
     const difficulty = useGameStore((state) => state.difficulty);
+    const playerColor = useGameStore((state) => state.playerColor);
+
+    const groupRef = useRef<THREE.Group>(null);
 
     useFrame((state, delta) => {
-        if (!meshRef.current) return;
+        if (!groupRef.current) return;
 
+        // Calculate Target X based on Lane
         const config = DIFFICULTY_CONFIG[difficulty];
+        // Center logic: -total/2 + index*w + w/2
         const totalWidth = config.laneCount * LANE_WIDTH;
-
-        // Calculate target X position
-        // Center is 0. 
-        // Left edge of road is -totalWidth/2
-        // Center of lane i is: -totalWidth/2 + (i * LANE_WIDTH) + (LANE_WIDTH/2)
         const targetX = -totalWidth / 2 + (currentLane * LANE_WIDTH) + (LANE_WIDTH / 2);
 
-        // Smooth interpolation
-        meshRef.current.position.x = THREE.MathUtils.lerp(
-            meshRef.current.position.x,
+        // Smooth Lerp
+        groupRef.current.position.x = THREE.MathUtils.lerp(
+            groupRef.current.position.x,
             targetX,
             LERP_SPEED * delta
         );
 
-        // Simple bobbing for "running" effect
-        meshRef.current.position.y = -0.5 + Math.abs(Math.sin(state.clock.elapsedTime * 10)) * 0.5;
+        // Bobbing animation
+        groupRef.current.position.y = 0.75 + Math.sin(state.clock.elapsedTime * 15) * 0.1;
     });
 
     return (
-        <mesh ref={meshRef} position={[0, 0, 0]} castShadow>
-            <boxGeometry args={[1, 1, 1]} />
-            <meshStandardMaterial color="orange" />
-            {/* Eyes to show direction */}
-            <mesh position={[0.2, 0.2, 0.4]}>
-                <sphereGeometry args={[0.1]} />
-                <meshStandardMaterial color="black" />
+        <group ref={groupRef} position={[0, 0.75, 0]}>
+            <mesh castShadow receiveShadow>
+                <boxGeometry args={[1, 1, 1]} />
+                <meshStandardMaterial color={playerColor} roughness={0.6} />
             </mesh>
-            <mesh position={[-0.2, 0.2, 0.4]}>
-                <sphereGeometry args={[0.1]} />
-                <meshStandardMaterial color="black" />
+            {/* Ears */}
+            <mesh position={[-0.3, 0.6, 0]} rotation={[0, 0, 0.5]} castShadow>
+                <coneGeometry args={[0.2, 0.4, 4]} />
+                <meshStandardMaterial color={playerColor} />
             </mesh>
-        </mesh>
+            <mesh position={[0.3, 0.6, 0]} rotation={[0, 0, -0.5]} castShadow>
+                <coneGeometry args={[0.2, 0.4, 4]} />
+                <meshStandardMaterial color={playerColor} />
+            </mesh>
+        </group>
     );
 };

@@ -2,11 +2,12 @@ import { useEffect } from 'react';
 import { GameScene } from './components/GameScene';
 import { HUD } from './components/UI/HUD';
 import { InstructionsModal } from './components/UI/InstructionsModal';
+import { MainMenu } from './components/UI/MainMenu';
+import { Customizer } from './components/UI/Customizer';
 import { useGameStore } from './store';
 
 function App() {
     const setLane = useGameStore((state) => state.setLane);
-    const startGame = useGameStore((state) => state.startGame);
     const setGameStatus = useGameStore((state) => state.setGameStatus);
     const gameStatus = useGameStore((state) => state.gameStatus);
 
@@ -35,8 +36,6 @@ function App() {
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [setLane, gameStatus]);
 
-
-
     const handleShowInstructions = () => {
         setGameStatus('instructions');
     }
@@ -52,31 +51,17 @@ function App() {
             {/* --- OVERLAYS --- */}
 
             {/* 1. MAIN MENU */}
-            {gameStatus === 'menu' && (
-                <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-                    <div className="text-center">
-                        <h1 className="text-8xl font-black mb-2 text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-blue-500 drop-shadow-2xl italic">
-                            SHIFTY
-                        </h1>
-                        <p className="text-white/80 text-xl font-medium mb-12 tracking-widest">
-                            THE ECO ENDLESS RUNNER
-                        </p>
-                        <button
-                            onClick={handleShowInstructions}
-                            className="bg-white text-slate-900 font-black py-4 px-12 rounded-full text-2xl shadow-[0_0_40px_rgba(255,255,255,0.3)] hover:scale-110 transition-transform active:scale-95"
-                        >
-                            START GAME
-                        </button>
-                    </div>
-                </div>
-            )}
+            {gameStatus === 'menu' && <MainMenu />}
 
-            {/* 2. INSTRUCTIONS MODAL */}
+            {/* 2. CUSTOMIZER */}
+            {gameStatus === 'customizing' && <Customizer />}
+
+            {/* 3. INSTRUCTIONS MODAL */}
             {gameStatus === 'instructions' && (
                 <InstructionsModal />
             )}
 
-            {/* 3. GAME OVER */}
+            {/* 4. GAME OVER */}
             {gameStatus === 'gameover' && (
                 <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-red-900/80 backdrop-blur-md">
                     <h2 className="text-6xl font-black text-white mb-4">GAME OVER</h2>
