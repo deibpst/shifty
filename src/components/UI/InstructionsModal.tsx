@@ -1,0 +1,90 @@
+import React from 'react';
+import { useGameStore } from '../../store';
+import { motion } from 'framer-motion';
+
+export const InstructionsModal: React.FC = () => {
+    const startGame = useGameStore((state) => state.startGame);
+
+    return (
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
+            <motion.div
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                className="bg-white rounded-3xl p-8 max-w-2xl w-full shadow-2xl overflow-hidden relative"
+            >
+                <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-green-400 via-blue-500 to-red-500" />
+
+                <h2 className="text-3xl font-black text-slate-800 mb-2 text-center">HOW TO PLAY</h2>
+                <p className="text-slate-500 text-center mb-8 font-medium">
+                    Help the cat sort the waste into the correct bins!
+                </p>
+
+                <div className="grid grid-cols-2 gap-8 mb-8">
+                    {/* CONTROLS */}
+                    <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100">
+                        <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4">CONTROLS</h3>
+                        <div className="space-y-3">
+                            <ControlRow keyChar="A" color="green" label="Green Lane" />
+                            <ControlRow keyChar="S" color="blue" label="Blue Lane" />
+                            <ControlRow keyChar="D" color="yellow" label="Yellow Lane" />
+                            <ControlRow keyChar="F" color="red" label="Red Lane" />
+                        </div>
+                        <p className="mt-4 text-xs text-slate-400 text-center">Or use Arrow Keys</p>
+                    </div>
+
+                    {/* LEGEND */}
+                    <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100">
+                        <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4">WASTE GUIDE</h3>
+                        <div className="space-y-3">
+                            <LegendRow color="green" label="Organic" desc="Food, Peels" />
+                            <LegendRow color="blue" label="Paper/Plastic" desc="Bottles, News" />
+                            <LegendRow color="yellow" label="Metal/PET" desc="Cans" />
+                            <LegendRow color="red" label="Hazardous" desc="Batteries" />
+                        </div>
+                    </div>
+                </div>
+
+                <div className="flex justify-center">
+                    <button
+                        onClick={startGame}
+                        className="bg-slate-900 hover:bg-slate-800 text-white text-lg font-bold py-4 px-12 rounded-full shadow-lg transition-transform transform hover:scale-105 active:scale-95"
+                    >
+                        GOT IT, LET'S SORT!
+                    </button>
+                </div>
+            </motion.div>
+        </div>
+    );
+};
+
+const ControlRow = ({ keyChar, color, label }: { keyChar: string, color: string, label: string }) => (
+    <div className="flex items-center gap-3">
+        <div className={`w-10 h-10 rounded-lg bg-white border-b-4 border-slate-200 flex items-center justify-center font-black text-slate-700 shadow-sm`}>
+            {keyChar}
+        </div>
+        <div className="flex items-center gap-2">
+            <div className={`w-3 h-3 rounded-full bg-${color}-500 shadow-[0_0_10px_rgba(0,0,0,0.2)]`} style={{ backgroundColor: getColorHex(color) }} />
+            <span className="text-sm font-bold text-slate-600">{label}</span>
+        </div>
+    </div>
+);
+
+const LegendRow = ({ color, label, desc }: { color: string, label: string, desc: string }) => (
+    <div className="flex items-center gap-3">
+        <div className={`w-3 h-full min-h-[2rem] rounded-full bg-${color}-500`} style={{ backgroundColor: getColorHex(color) }} />
+        <div>
+            <div className="text-sm font-bold text-slate-700">{label}</div>
+            <div className="text-xs text-slate-400">{desc}</div>
+        </div>
+    </div>
+);
+
+function getColorHex(color: string) {
+    switch (color) {
+        case 'green': return '#22c55e';
+        case 'blue': return '#3b82f6';
+        case 'yellow': return '#eab308';
+        case 'red': return '#ef4444';
+        default: return '#94a3b8';
+    }
+}
