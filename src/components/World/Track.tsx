@@ -11,14 +11,14 @@ export const Track: React.FC = () => {
     const config = DIFFICULTY_CONFIG[difficulty];
     const totalWidth = config.laneCount * LANE_WIDTH;
 
-    // Floor (Grass)
-    const floorWidth = 200;
+    // Floor (Grass) - Massive plane to prevent gaps
+    const floorSize = 1000;
 
     return (
         <group position={[0, -1, 0]}>
-            {/* Grass Ground */}
-            <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.01, -ROAD_LENGTH / 2]} receiveShadow>
-                <planeGeometry args={[floorWidth, ROAD_LENGTH]} />
+            {/* Grass Ground - Infinite appearance */}
+            <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.1, -ROAD_LENGTH / 4]} receiveShadow>
+                <planeGeometry args={[floorSize, floorSize]} />
                 <meshStandardMaterial color="#4ade80" />
             </mesh>
 

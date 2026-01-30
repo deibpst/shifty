@@ -8,28 +8,28 @@ import { PerspectiveCamera } from '@react-three/drei';
 const GameContent: React.FC = () => {
     return (
         <>
-            {/* Camera: High and angled down to see the path ahead */}
+            {/* Fog for depth and to hide the horizon cut-off */}
+            <fog attach="fog" args={['#87CEEB', 10, 60]} />
+
+            <ambientLight intensity={0.5} />
+            <directionalLight
+                position={[10, 10, 5]}
+                intensity={1}
+                castShadow
+                shadow-mapSize={[1024, 1024]}
+            />
+
+            {/* Camera: Lower and angled to cover the bottom gap */}
             <PerspectiveCamera
                 makeDefault
-                position={[0, 7, 12]}
-                rotation={[-0.35, 0, 0]}
+                position={[0, 4, 8]}
+                rotation={[-0.25, 0, 0]}
                 fov={60}
                 near={0.1}
                 far={1000}
             />
 
-            {/* Lighting: Strong directional light for shadows + Ambient */}
-            <ambientLight intensity={0.7} />
-            <directionalLight
-                position={[-10, 20, 10]}
-                intensity={1.5}
-                castShadow
-                shadow-mapSize={[2048, 2048]}
-                shadow-bias={-0.0001}
-            />
 
-            {/* Fog: Matches the sky color to hide the spawn point */}
-            <fog attach="fog" args={['#87CEEB', 30, 150]} />
 
             {/* World Components */}
             <Track />
