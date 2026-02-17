@@ -27,12 +27,28 @@ type GLTFResult = GLTF & {
   animations: GLTFAction[]
 }
 
-export function Model(props: JSX.IntrinsicElements['group']) {
-  const group = React.useRef<THREE.Group>()
+type ModelProps = JSX.IntrinsicElements['group'] & {
+  currentAction?: string;
+}
+
+export function Model({ currentAction = 'Run', ...props }: ModelProps) {
+  const group = React.useRef<THREE.Group>(null)
   const { scene, animations } = useGLTF('/Sheep.gltf')
   const clone = React.useMemo(() => SkeletonUtils.clone(scene), [scene])
   const { nodes, materials } = useGraph(clone) as GLTFResult
   const { actions } = useAnimations(animations, group)
+
+  React.useEffect(() => {
+    const actionToPlay = actions[currentAction] || actions['Run'] || actions['Idle'];
+
+    if (actionToPlay) {
+      actionToPlay.reset().fadeIn(0.2).play();
+      return () => {
+        actionToPlay.fadeOut(0.2);
+      }
+    }
+  }, [currentAction, actions]);
+
   return (
     <group ref={group} {...props} dispose={null}>
       <group name="Scene">

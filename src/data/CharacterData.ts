@@ -1,10 +1,12 @@
 
 import { Model as CatModel } from '../../Cat';
 import { Model as DogModel } from '../../Dog';
-import { Model as ChickModel } from '../../Chick';
-
-// For now, allow any component, but typically they should follow the ModelProps interface
-// We can use lazy loading if the bundle gets too big, but for < 10 components it's fine.
+import { Model as ChickenModel } from '../../Chicken';
+import { Model as HorseModel } from '../../Horse';
+import { Model as PigModel } from '../../Pig';
+import { Model as RaccoonModel } from '../../Raccoon';
+import { Model as SheepModel } from '../../Sheep';
+import { Model as WolfModel } from '../../Wolf';
 
 export const AVAILABLE_CHARACTERS = [
     {
@@ -18,14 +20,49 @@ export const AVAILABLE_CHARACTERS = [
         id: 'dog_loyal',
         name: 'Perro Leal',
         Component: DogModel,
-        requiredScore: 50, // Easy unlock
+        requiredScore: 50,
         description: 'Siempre fiel y listo para correr.'
     },
     {
-        id: 'chick_tiny',
-        name: 'Pollito Valiente',
-        Component: ChickModel,
+        id: 'chicken_brave',
+        name: 'Pollo Valiente',
+        Component: ChickenModel,
+        requiredScore: 100,
+        description: 'No es una gallina normal.'
+    },
+    {
+        id: 'horse_fast',
+        name: 'Caballo Veloz',
+        Component: HorseModel,
+        requiredScore: 150,
+        description: 'Nacido para la velocidad.'
+    },
+    {
+        id: 'pig_happy',
+        name: 'Cerdito Feliz',
+        Component: PigModel,
         requiredScore: 200,
-        description: 'Pequeño pero rápido.'
+        description: 'Le encanta revolcarse en el lodo.'
+    },
+    {
+        id: 'raccoon_sneaky',
+        name: 'Mapache Astuto',
+        Component: RaccoonModel,
+        requiredScore: 250,
+        description: 'Maestro del reciclaje nocturno.'
+    },
+    {
+        id: 'sheep_fluffy',
+        name: 'Oveja Suave',
+        Component: SheepModel,
+        requiredScore: 300,
+        description: 'Suave como una nube.'
+    },
+    {
+        id: 'wolf_wild',
+        name: 'Lobo Salvaje',
+        Component: WolfModel,
+        requiredScore: 350,
+        description: 'El rey del bosque.'
     }
 ];

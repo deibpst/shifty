@@ -39,7 +39,7 @@ export const Customizer: React.FC = () => {
 
                 <button
                     onClick={() => setGameStatus('menu')}
-                    className="absolute top-6 left-6 p-3 bg-white/50 backdrop-blur-md rounded-full text-slate-700 hover:bg-white hover:text-slate-900 transition-all shadow-lg group z-10"
+                    className="absolute top-6 left-6 p-3 bg-white/50 backdrop-blur-md rounded-full text-slate-700 hover:bg-white hover:text-slate-900 transition-all shadow-lg group z-50"
                     aria-label="Back to Menu"
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-6 h-6 group-hover:-translate-x-1 transition-transform">
