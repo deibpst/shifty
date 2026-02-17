@@ -17,14 +17,12 @@ interface GLTFAction extends THREE.AnimationClip {
 
 type GLTFResult = GLTF & {
   nodes: {
-    Cube094: THREE.SkinnedMesh
-    Cube094_1: THREE.SkinnedMesh
+    Skull: THREE.SkinnedMesh
     Body: THREE.Bone
     Head: THREE.Bone
   }
   materials: {
-    Main: THREE.MeshStandardMaterial
-    Main_Light: THREE.MeshStandardMaterial
+    Texture: THREE.MeshBasicMaterial
   }
   animations: GLTFAction[]
 }
@@ -40,10 +38,7 @@ export function Model(props: JSX.IntrinsicElements['group']) {
         <group name="MonsterArmature">
           <primitive object={nodes.Body} />
           <primitive object={nodes.Head} />
-          <group name="Skull">
-            <skinnedMesh name="Cube094" geometry={nodes.Cube094.geometry} material={materials.Main} skeleton={nodes.Cube094.skeleton} />
-            <skinnedMesh name="Cube094_1" geometry={nodes.Cube094_1.geometry} material={materials.Main_Light} skeleton={nodes.Cube094_1.skeleton} />
-          </group>
+          <skinnedMesh name="Skull" geometry={nodes.Skull.geometry} material={materials.Texture} skeleton={nodes.Skull.skeleton} />
         </group>
       </group>
     </group>
