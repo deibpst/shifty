@@ -3,6 +3,7 @@ import { Suspense } from 'react';
 import { Track } from './World/Track';
 import { PlayerController } from './Player/PlayerController';
 import { WasteManager } from './World/WasteManager';
+import { EnvironmentManager } from './World/EnvironmentManager';
 import { PerspectiveCamera } from '@react-three/drei';
 
 const GameContent: React.FC = () => {
@@ -33,6 +34,7 @@ const GameContent: React.FC = () => {
 
             {/* World Components */}
             <Track />
+            <EnvironmentManager />
             <WasteManager />
             <PlayerController />
 
