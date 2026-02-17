@@ -36,7 +36,7 @@ export const HUD: React.FC = () => {
 
                         <div className="flex flex-col">
                             <div className="text-xs font-bold text-slate-800 uppercase tracking-widest opacity-70">
-                                FIND THIS LANE
+                                CLASIFICA:
                             </div>
                             <div className="text-2xl font-black text-slate-900 drop-shadow-sm leading-none">
                                 {currentWasteItem.name}

@@ -24,32 +24,32 @@ export const InstructionsModal: React.FC = () => {
                     </svg>
                 </button>
 
-                <h2 className="text-3xl font-black text-slate-800 mb-2 text-center mt-2">HOW TO PLAY</h2>
+                <h2 className="text-3xl font-black text-slate-800 mb-2 text-center mt-2">CÓMO JUGAR</h2>
                 <p className="text-slate-500 text-center mb-8 font-medium">
-                    Help the cat sort the waste into the correct bins!
+                    ¡Ayuda al gato a clasificar los residuos en los contenedores correctos!
                 </p>
 
                 <div className="grid grid-cols-2 gap-8 mb-8">
                     {/* CONTROLS */}
                     <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100">
-                        <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4">CONTROLS</h3>
+                        <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4">CONTROLES</h3>
                         <div className="space-y-3">
-                            <ControlRow keyChar="A" color="green" label="Green Lane" />
-                            <ControlRow keyChar="S" color="blue" label="Blue Lane" />
-                            <ControlRow keyChar="D" color="yellow" label="Yellow Lane" />
-                            <ControlRow keyChar="F" color="red" label="Red Lane" />
+                            <ControlRow keyChar="A" color="green" label="Carril Verde" />
+                            <ControlRow keyChar="S" color="blue" label="Carril Azul" />
+                            <ControlRow keyChar="D" color="yellow" label="Carril Amarillo" />
+                            <ControlRow keyChar="F" color="red" label="Carril Rojo" />
                         </div>
-                        <p className="mt-4 text-xs text-slate-400 text-center">Or use Arrow Keys</p>
+                        <p className="mt-4 text-xs text-slate-400 text-center">O usa las Flechas</p>
                     </div>
 
                     {/* LEGEND */}
                     <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100">
-                        <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4">WASTE GUIDE</h3>
+                        <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4">GUÍA DE RESIDUOS</h3>
                         <div className="space-y-3">
-                            <LegendRow color="green" label="Organic" desc="Food, Peels" />
-                            <LegendRow color="blue" label="Paper/Plastic" desc="Bottles, News" />
-                            <LegendRow color="yellow" label="Metal/PET" desc="Cans" />
-                            <LegendRow color="red" label="Hazardous" desc="Batteries" />
+                            <LegendRow color="green" label="Orgánico" desc="Comida, Cáscaras" />
+                            <LegendRow color="blue" label="Papel/Plástico" desc="Botellas, Periódico" />
+                            <LegendRow color="yellow" label="Metal/PET" desc="Latas" />
+                            <LegendRow color="red" label="Peligrosos" desc="Pilas" />
                         </div>
                     </div>
                 </div>
@@ -62,7 +62,7 @@ export const InstructionsModal: React.FC = () => {
                         className="bg-slate-200 hover:bg-slate-300 text-slate-700 text-lg font-bold py-4 px-8 rounded-full shadow-lg transition-transform transform hover:scale-105 active:scale-95 flex items-center gap-2"
                     >
                         <span>🎬</span>
-                        REPLAY TUTORIAL
+                        VOLVER A VER EL TUTORIAL
                     </button>
 
                     <button
@@ -76,7 +76,7 @@ export const InstructionsModal: React.FC = () => {
                         }}
                         className="bg-slate-900 hover:bg-slate-800 text-white text-lg font-bold py-4 px-12 rounded-full shadow-lg transition-transform transform hover:scale-105 active:scale-95"
                     >
-                        GOT IT, LET'S SORT!
+                        ¡ENTENDIDO, A CLASIFICAR!
                     </button>
                 </div>
             </motion.div>

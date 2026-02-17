@@ -33,7 +33,7 @@ export const Customizer: React.FC = () => {
                     </svg>
                 </button>
 
-                <h2 className="text-4xl font-black text-slate-800 mb-8">CHOOSE YOUR STYLE</h2>
+                <h2 className="text-4xl font-black text-slate-800 mb-8">ELIGE TU ESTILO</h2>
 
                 <div className="flex justify-center flex-wrap gap-4 mb-10">
                     {COLORS.map((color) => (
@@ -55,7 +55,7 @@ export const Customizer: React.FC = () => {
                     onClick={() => setGameStatus('menu')}
                     className="bg-slate-800 text-white font-bold py-3 px-8 rounded-full text-lg shadow-xl"
                 >
-                    SAVE & BACK
+                    GUARDAR Y VOLVER
                 </motion.button>
             </motion.div>
         </div>

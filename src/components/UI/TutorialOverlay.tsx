@@ -120,13 +120,13 @@ export const TutorialOverlay: React.FC = () => {
                             onClick={skipTutorial}
                             className="px-6 py-3 rounded-full text-slate-400 font-bold hover:text-slate-600 transition-colors"
                         >
-                            Skip
+                            Saltar Tutorial
                         </button>
                         <button
                             onClick={handleNext}
                             className="px-10 py-3 rounded-full bg-slate-900 text-white font-bold shadow-lg hover:scale-105 active:scale-95 transition-all"
                         >
-                            {tutorialStep === TUTORIAL_STEPS.length ? "Let's Play!" : 'Next'}
+                            {tutorialStep === TUTORIAL_STEPS.length ? "¡A Jugar!" : 'Siguiente'}
                         </button>
                     </div>
                 </motion.div>
