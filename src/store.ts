@@ -5,12 +5,16 @@ interface GameState {
     score: number;
     lives: number;
     currentLane: number; // 0-indexed
-    gameStatus: 'menu' | 'instructions' | 'playing' | 'paused' | 'gameover' | 'customizing';
+    gameStatus: 'menu' | 'instructions' | 'playing' | 'paused' | 'gameover' | 'customizing' | 'tutorial';
     difficulty: DifficultyLevel;
     speedMultiplier: number;
     playerColor: string;
 
     currentWasteItem: WasteItem | null;
+
+    // Tutorial State
+    hasSeenTutorial: boolean;
+    tutorialStep: number;
 
     // Actions
     startGame: () => void;
@@ -20,8 +24,14 @@ interface GameState {
     setLane: (laneIndex: number) => void;
     processCollision: (isCorrect: boolean) => void;
     resetGame: () => void;
-    setGameStatus: (status: 'menu' | 'instructions' | 'playing' | 'paused' | 'gameover' | 'customizing') => void;
+    setGameStatus: (status: 'menu' | 'instructions' | 'playing' | 'paused' | 'gameover' | 'customizing' | 'tutorial') => void;
     randomizeWaste: () => void;
+
+    // Tutorial Actions
+    startTutorial: () => void;
+    nextTutorialStep: () => void;
+    completeTutorial: () => void;
+    skipTutorial: () => void;
 }
 
 const INITIAL_LIVES = 3;
@@ -81,6 +91,10 @@ export const useGameStore = create<GameState>((set, get) => ({
     currentWasteItem: null,
     playerColor: '#FFA500', // Default Orange
 
+    // Tutorial Init
+    hasSeenTutorial: localStorage.getItem('shifty_tutorial_seen') === 'true',
+    tutorialStep: 0,
+
     setPlayerColor: (color) => set({ playerColor: color }),
 
     startGame: () => {
@@ -111,7 +125,15 @@ export const useGameStore = create<GameState>((set, get) => ({
 
     moveLane: (direction) => {
         const { gameStatus, currentLane, difficulty } = get();
-        if (gameStatus !== 'playing') return;
+        if (gameStatus !== 'playing' && gameStatus !== 'tutorial') return; // Allow movement in tutorial if needed, or maybe not? 
+        // Request says paused, but maybe we want them to test controls? 
+        // "Step 3: ... Use keys ...". 
+        // If game is paused, they can't move? 
+        // "if gameStatus === 'tutorial', the game must be PAUSED (objects do not advance and player cannot lose lives)."
+        // This usually implies update loop is paused, but controls might work?
+        // Let's assume controls work but world is static for now, or we'll handle it in GameScene.
+
+        if (gameStatus === 'tutorial' && get().tutorialStep !== 3) return; // Only move in step 3? Or always? Let's allow if tutorial.
 
         const config = DIFFICULTY_CONFIG[difficulty];
         const maxLaneIndex = config.laneCount - 1;
@@ -130,7 +152,7 @@ export const useGameStore = create<GameState>((set, get) => ({
 
     setLane: (laneIndex) => {
         const { gameStatus, difficulty } = get();
-        if (gameStatus !== 'playing') return;
+        if (gameStatus !== 'playing' && gameStatus !== 'tutorial') return;
 
         const config = DIFFICULTY_CONFIG[difficulty];
         if (laneIndex >= 0 && laneIndex < config.laneCount) {
@@ -139,7 +161,9 @@ export const useGameStore = create<GameState>((set, get) => ({
     },
 
     processCollision: (isCorrect) => {
-        const { lives, score, speedMultiplier } = get();
+        const { lives, score, speedMultiplier, gameStatus } = get();
+
+        if (gameStatus === 'tutorial') return; // No collision processing in tutorial
 
         if (isCorrect) {
             const newScore = score + 1;
@@ -160,10 +184,6 @@ export const useGameStore = create<GameState>((set, get) => ({
                 });
             } else {
                 set({ lives: newLives });
-                // If wrong bin, maybe keep same item or switch? 
-                // Usually keeping the same item lets them try again, but endless runner flows fast.
-                // Let's switch to avoid confusion if they missed it.
-                // Actually, user didn't specify. Let's keep it simply lives deduction.
             }
         }
     },
@@ -183,5 +203,40 @@ export const useGameStore = create<GameState>((set, get) => ({
     randomizeWaste: () => {
         const randomWaste = WASTE_ITEMS[Math.floor(Math.random() * WASTE_ITEMS.length)];
         set({ currentWasteItem: randomWaste });
+    },
+
+    // Tutorial Implementation
+    startTutorial: () => {
+        const { difficulty } = get();
+        const config = DIFFICULTY_CONFIG[difficulty];
+        const startLane = Math.floor(config.laneCount / 2);
+
+        // Ensure we have a waste item for display purposes
+        const randomWaste = WASTE_ITEMS[Math.floor(Math.random() * WASTE_ITEMS.length)];
+
+        set({
+            gameStatus: 'tutorial',
+            tutorialStep: 1,
+            score: 0,
+            lives: INITIAL_LIVES,
+            currentLane: startLane,
+            currentWasteItem: randomWaste
+        });
+    },
+
+    nextTutorialStep: () => {
+        set((state) => ({ tutorialStep: state.tutorialStep + 1 }));
+    },
+
+    completeTutorial: () => {
+        localStorage.setItem('shifty_tutorial_seen', 'true');
+        set({ hasSeenTutorial: true });
+        get().startGame();
+    },
+
+    skipTutorial: () => {
+        localStorage.setItem('shifty_tutorial_seen', 'true');
+        set({ hasSeenTutorial: true });
+        get().startGame();
     }
 }));

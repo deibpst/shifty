@@ -3,7 +3,7 @@ import { useGameStore } from '../../store';
 import { motion } from 'framer-motion';
 
 export const InstructionsModal: React.FC = () => {
-    const startGame = useGameStore((state) => state.startGame);
+
 
     return (
         <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
@@ -54,9 +54,26 @@ export const InstructionsModal: React.FC = () => {
                     </div>
                 </div>
 
-                <div className="flex justify-center">
+                <div className="flex justify-center gap-4">
                     <button
-                        onClick={startGame}
+                        onClick={() => {
+                            useGameStore.getState().startTutorial();
+                        }}
+                        className="bg-slate-200 hover:bg-slate-300 text-slate-700 text-lg font-bold py-4 px-8 rounded-full shadow-lg transition-transform transform hover:scale-105 active:scale-95 flex items-center gap-2"
+                    >
+                        <span>🎬</span>
+                        REPLAY TUTORIAL
+                    </button>
+
+                    <button
+                        onClick={() => {
+                            const { hasSeenTutorial, startTutorial, startGame } = useGameStore.getState();
+                            if (!hasSeenTutorial) {
+                                startTutorial();
+                            } else {
+                                startGame();
+                            }
+                        }}
                         className="bg-slate-900 hover:bg-slate-800 text-white text-lg font-bold py-4 px-12 rounded-full shadow-lg transition-transform transform hover:scale-105 active:scale-95"
                     >
                         GOT IT, LET'S SORT!

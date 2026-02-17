@@ -26,7 +26,15 @@ export const WasteManager: React.FC = () => {
     const lastSpawnTime = useRef(0);
 
     useFrame((state, delta) => {
-        if (gameStatus !== 'playing') return;
+        if (gameStatus !== 'playing' && gameStatus !== 'tutorial') return;
+
+        // In tutorial, we might want to render static objects or just nothing?
+        // "Si gameStatus === 'tutorial', el juego debe estar PAUSADO (los objetos no avanzan...)"
+        if (gameStatus === 'tutorial') {
+            // Do not update positions, do not spawn. 
+            // Just return to keep current state frozen.
+            return;
+        }
 
         const time = state.clock.elapsedTime;
         const config = DIFFICULTY_CONFIG[difficulty];

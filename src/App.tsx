@@ -6,6 +6,8 @@ import { MainMenu } from './components/UI/MainMenu';
 import { Customizer } from './components/UI/Customizer';
 import { useGameStore } from './store';
 
+import { TutorialOverlay } from './components/UI/TutorialOverlay';
+
 function App() {
     const setLane = useGameStore((state) => state.setLane);
     const setGameStatus = useGameStore((state) => state.setGameStatus);
@@ -22,7 +24,10 @@ function App() {
             const key = e.key.toLowerCase();
 
             // GAMEPLAY CONTROLS
-            if (gameStatus === 'playing') {
+            // Allow controls in tutorial step 3
+            const tutorialStep = useGameStore.getState().tutorialStep;
+
+            if (gameStatus === 'playing' || (gameStatus === 'tutorial' && tutorialStep === 3)) {
                 switch (key) {
                     case 'a': case 'arrowleft': setLane(0); break;
                     case 's': case 'arrowdown': setLane(1); break;
@@ -46,9 +51,12 @@ function App() {
             <GameScene />
 
             {/* HUD (Only visible when playing) */}
-            {gameStatus === 'playing' && <HUD />}
+            {(gameStatus === 'playing' || gameStatus === 'tutorial') && <HUD />}
 
             {/* --- OVERLAYS --- */}
+
+            {/* 0. TUTORIAL */}
+            {gameStatus === 'tutorial' && <TutorialOverlay />}
 
             {/* 1. MAIN MENU */}
             {gameStatus === 'menu' && <MainMenu />}
