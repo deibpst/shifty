@@ -7,6 +7,7 @@ import { Model as PigModel } from '../../Pig';
 import { Model as RaccoonModel } from '../../Raccoon';
 import { Model as SheepModel } from '../../Sheep';
 import { Model as WolfModel } from '../../Wolf';
+import { Model as ChickModel } from '../../Chick';
 
 export const AVAILABLE_CHARACTERS = [
     {
@@ -64,5 +65,12 @@ export const AVAILABLE_CHARACTERS = [
         Component: WolfModel,
         requiredScore: 350,
         description: 'El rey del bosque.'
+    },
+    {
+        id: 'chick_tiny',
+        name: 'Pollito Tiny',
+        Component: ChickModel,
+        requiredScore: 400,
+        description: 'El mas pequeño de todos.'
     }
 ];
