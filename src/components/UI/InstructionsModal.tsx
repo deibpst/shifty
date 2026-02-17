@@ -61,7 +61,7 @@ export const InstructionsModal: React.FC = () => {
                         }}
                         className="bg-slate-200 hover:bg-slate-300 text-slate-700 text-lg font-bold py-4 px-8 rounded-full shadow-lg transition-transform transform hover:scale-105 active:scale-95 flex items-center gap-2"
                     >
-                        <span>🎬</span>
+
                         VOLVER A VER EL TUTORIAL
                     </button>
 

@@ -3,7 +3,7 @@ import { useGameStore } from '../../store';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export const HUD: React.FC = () => {
-    const { score, lives, currentWasteItem, difficulty } = useGameStore();
+    const { score, lives, currentWasteItem } = useGameStore();
 
     if (!currentWasteItem) return null;
 
@@ -70,21 +70,19 @@ export const HUD: React.FC = () => {
                 </div>
             </div>
 
-            {/* Debug Info */}
-            <div className="absolute bottom-2 right-2 text-xs text-black/30 font-mono">
-                Diff: {difficulty}
-            </div>
+
         </div>
     );
 };
 
-switch (color) {
-    case 'green': return '#22c55e';
-    case 'blue': return '#3b82f6';
-    case 'yellow': return '#eab308';
-    case 'red': return '#ef4444';
-    default: return '#f1f5f9';
-}
+function getPastelColor(color: string) {
+    switch (color) {
+        case 'green': return '#22c55e';
+        case 'blue': return '#3b82f6';
+        case 'yellow': return '#eab308';
+        case 'red': return '#ef4444';
+        default: return '#f1f5f9';
+    }
 }
 
 function getBorderColor(color: string) {
