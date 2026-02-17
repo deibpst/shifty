@@ -26,13 +26,19 @@ const TUTORIAL_STEPS = [
         step: 4,
         title: "Puntos",
         content: "¡Acierta el contenedor correcto y ganarás puntos para desbloquear nuevos personajes!",
-        highlightClass: "top-4 right-4 w-32 h-16 rounded-full",
+        highlightClass: "top-4 right-20 w-40 h-14 rounded-full",
     },
     {
         step: 5,
         title: "Vidas",
         content: "Cuidado con los obstáculos y los contenedores equivocados, o perderás vidas. ¡Si pierdes 3, se acaba el juego!",
         highlightClass: "top-4 left-4 w-48 h-16 rounded-full",
+    },
+    {
+        step: 6,
+        title: "Pausa",
+        content: "¿Necesitas un descanso? Presiona la barra espaciadora o haz clic en el botón de pausa para pausar el juego. ¡Haz lo mismo para reanudar!",
+        highlightClass: "top-4 right-4 w-14 h-14 rounded-full",
     }
 ];
 
@@ -112,6 +118,15 @@ export const TutorialOverlay: React.FC = () => {
                                     {key}
                                 </div>
                             ))}
+                        </div>
+                    )}
+
+                    {/* Step 6 Special Visual: Spacebar */}
+                    {tutorialStep === 6 && (
+                        <div className="flex justify-center mb-8">
+                            <div className="px-12 py-3 bg-slate-100 border-2 border-slate-300 border-b-4 rounded-lg flex items-center justify-center font-bold text-slate-700 text-sm">
+                                ESPACIO ⏸️
+                            </div>
                         </div>
                     )}
 
