@@ -78,14 +78,13 @@ export const HUD: React.FC = () => {
     );
 };
 
-function getPastelColor(color: string) {
-    switch (color) {
-        case 'green': return '#A2E4B8';
-        case 'blue': return '#AEC6CF';
-        case 'yellow': return '#FDFD96';
-        case 'red': return '#FFB3BA';
-        default: return '#f1f5f9';
-    }
+switch (color) {
+    case 'green': return '#22c55e';
+    case 'blue': return '#3b82f6';
+    case 'yellow': return '#eab308';
+    case 'red': return '#ef4444';
+    default: return '#f1f5f9';
+}
 }
 
 function getBorderColor(color: string) {

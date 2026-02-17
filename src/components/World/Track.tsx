@@ -6,10 +6,10 @@ const LANE_WIDTH = 3.0;
 const ROAD_LENGTH = 300;
 
 const LANE_COLORS: Record<string, string> = {
-    green: '#A2E4B8',  // Pastel Green
-    blue: '#AEC6CF',   // Pastel Blue
-    yellow: '#FDFD96', // Pastel Yellow
-    red: '#FFB3BA'     // Pastel Red
+    green: '#22c55e',  // Vivid Green
+    blue: '#3b82f6',   // Vivid Blue
+    yellow: '#eab308', // Vivid Yellow
+    red: '#ef4444'     // Vivid Red
 };
 
 export const Track: React.FC = () => {
@@ -45,7 +45,7 @@ export const Track: React.FC = () => {
                         receiveShadow
                     >
                         <planeGeometry args={[LANE_WIDTH, ROAD_LENGTH]} />
-                        <meshStandardMaterial color={LANE_COLORS[colorName]} />
+                        <meshStandardMaterial color={LANE_COLORS[colorName]} toneMapped={false} />
                     </mesh>
                 );
             })}
