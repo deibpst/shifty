@@ -43,45 +43,41 @@ export const Customizer: React.FC = () => {
     const startIndex = currentPage * itemsPerPage;
     const visibleCharacters = AVAILABLE_CHARACTERS.slice(startIndex, startIndex + itemsPerPage);
 
-    // Determine Themes
-    const currentTheme = THEMES[currentPage % THEMES.length];
-
-    // logic for next button color: "un boton [color siguiente] que nos muestre las siguientes dos"
+    // Calculate next page for navigation
     const nextPage = (currentPage + 1) % totalPages;
-    const nextTheme = THEMES[nextPage % THEMES.length];
 
     const handleNext = () => {
         setCurrentPage(nextPage);
     };
 
     return (
-        <div className="absolute inset-0 z-50 flex items-center justify-center bg-slate-900/80 backdrop-blur-md pt-10">
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-slate-900/80 backdrop-blur-md p-4">
             <motion.div
                 layout
-                className="bg-white p-6 rounded-[3rem] shadow-2xl max-w-5xl w-full h-[85vh] flex flex-col relative overflow-hidden border-4 border-slate-100"
+                className="bg-white p-4 rounded-2xl shadow-2xl max-w-3xl w-full max-h-[80vh] flex flex-col relative overflow-hidden border-2 border-slate-100"
             >
                 {/* Header Decoration - Neutral */}
-                <div className="absolute top-0 left-0 w-full h-40 bg-gradient-to-b from-slate-50 to-transparent opacity-50" />
+                <div className="absolute top-0 left-0 w-full h-24 bg-gradient-to-b from-slate-50 to-transparent opacity-50" />
 
                 {/* Score Badge */}
-                <div className="absolute top-8 right-8 bg-white/80 backdrop-blur px-6 py-2 rounded-full shadow-lg border-2 border-slate-100 z-20">
-                    <p className="text-slate-500 font-bold text-sm">
-                        PUNTOS: <span className="text-slate-800 text-xl font-black">{totalScore}</span>
+                <div className="absolute top-3 right-3 bg-white/80 backdrop-blur px-4 py-1 rounded-full shadow-md border border-slate-100 z-20">
+                    <p className="text-slate-500 font-bold text-xs">
+                        PUNTOS: <span className="text-slate-800 text-base font-black">{totalScore}</span>
                     </p>
                 </div>
 
-                <div className="text-center z-10 mb-2 mt-4">
-                    <h2 className="text-5xl font-black text-slate-800 tracking-tighter uppercase drop-shadow-sm">
+                <div className="text-center z-10 mb-2 mt-3 shrink-0">
+                    <h2 className="text-3xl font-black text-slate-800 tracking-tighter uppercase drop-shadow-sm">
                         Galería
                     </h2>
-                    <p className="text-slate-400 font-bold text-sm tracking-widest uppercase mt-2">
+                    <p className="text-slate-400 font-bold text-xs tracking-widest uppercase mt-1">
                         Página {currentPage + 1} de {totalPages}
                     </p>
                 </div>
 
                 {/* --- CHARACTER GRID --- */}
-                <div className="flex-1 flex items-center justify-center">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-4xl px-8">
+                <div className="flex-1 overflow-y-auto overflow-x-hidden min-h-0 py-2">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full px-4">
                         <AnimatePresence mode='wait'>
                             {visibleCharacters.map((char, index) => {
                                 const isLocked = totalScore < char.requiredScore;
@@ -97,15 +93,15 @@ export const Customizer: React.FC = () => {
                                         initial={{ opacity: 0, x: 50 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         exit={{ opacity: 0, x: -50 }}
-                                        className={`relative rounded-3xl overflow-hidden border-4 transition-all duration-300 group bg-white
+                                        className={`relative rounded-2xl overflow-hidden border-2 transition-all duration-300 group bg-white
                                             ${isSelected
-                                                ? `${theme.border} ${theme.shadow} shadow-xl scale-[1.02]`
+                                                ? `${theme.border} ${theme.shadow} shadow-lg scale-[1.01]`
                                                 : 'border-slate-100 shadow-sm hover:border-slate-300'}
                                             ${isLocked ? 'grayscale opacity-70' : ''}
                                         `}
                                     >
                                         {/* 3D Preview */}
-                                        <div className="h-64 w-full bg-slate-50 relative">
+                                        <div className="h-40 w-full bg-slate-50 relative">
                                             <Canvas shadows dpr={[1, 2]}>
                                                 <Suspense fallback={null}>
                                                     <PerspectiveCamera makeDefault position={[0, 1.2, 3.5]} fov={45} />
@@ -128,27 +124,27 @@ export const Customizer: React.FC = () => {
                                         </div>
 
                                         {/* Info & Action */}
-                                        <div className={`p-6 text-center transition-colors duration-500 ${isSelected ? theme.bg : 'bg-white'}`}>
-                                            <h3 className="text-2xl font-black text-slate-800 mb-1">{char.name}</h3>
-                                            <p className="text-sm text-slate-500 mb-6 min-h-[2.5rem] flex items-center justify-center font-medium leading-tight">
+                                        <div className={`p-4 text-center transition-colors duration-500 ${isSelected ? theme.bg : 'bg-white'}`}>
+                                            <h3 className="text-lg font-black text-slate-800 mb-1">{char.name}</h3>
+                                            <p className="text-xs text-slate-500 mb-3 min-h-[2rem] flex items-center justify-center font-medium leading-tight">
                                                 {char.description}
                                             </p>
 
                                             {isLocked ? (
-                                                <div className="inline-flex items-center gap-2 px-6 py-3 bg-slate-200 rounded-xl text-slate-500 font-bold text-sm">
+                                                <div className="inline-flex items-center gap-2 px-4 py-2 bg-slate-200 rounded-lg text-slate-500 font-bold text-xs">
                                                     <span>🔒 {char.requiredScore} pts</span>
                                                 </div>
                                             ) : (
                                                 <button
                                                     onClick={() => setSelectedCharacter(char.id)}
                                                     disabled={isSelected}
-                                                    className={`w-full py-4 rounded-xl font-bold transition-all transform active:scale-95 text-lg
+                                                    className={`w-full py-2.5 rounded-lg font-bold transition-all transform active:scale-95 text-sm
                                                         ${isSelected
-                                                            ? `${theme.btn} text-white cursor-default shadow-[0_4px_0_rgba(0,0,0,0.2)]`
+                                                            ? `${theme.btn} text-white cursor-default shadow-[0_3px_0_rgba(0,0,0,0.2)]`
                                                             : `bg-white border-2 ${theme.border} ${theme.text} hover:bg-slate-50`}
                                                     `}
                                                 >
-                                                    {isSelected ? '¡SELECCIONADO!' : 'SELECCIONAR'}
+                                                    {isSelected ? '¡LISTO!' : 'ELEGIR'}
                                                 </button>
                                             )}
                                         </div>
@@ -160,11 +156,11 @@ export const Customizer: React.FC = () => {
                 </div>
 
                 {/* --- NAVIGATION FOOTER --- */}
-                <div className="p-8 flex items-center justify-between gap-6 z-20">
+                <div className="p-3 flex items-center justify-between gap-3 z-20 shrink-0 bg-white border-t border-slate-100">
                     {/* Back to Menu (Red) */}
                     <button
                         onClick={() => setGameStatus('menu')}
-                        className="flex-1 py-4 bg-red-500 hover:bg-red-600 text-white rounded-2xl font-black text-xl shadow-[0_4px_0_#991b1b] active:translate-y-1 active:shadow-none transition-all"
+                        className="flex-1 py-2.5 bg-red-500 hover:bg-red-600 text-white rounded-xl font-bold text-base shadow-[0_3px_0_#991b1b] active:translate-y-1 active:shadow-none transition-all"
                     >
                         SALIR
                     </button>
@@ -172,10 +168,10 @@ export const Customizer: React.FC = () => {
                     {/* Next Page (Yellow) */}
                     <button
                         onClick={handleNext}
-                        className="flex-[2] py-4 bg-yellow-400 hover:bg-yellow-500 text-yellow-900 rounded-2xl font-black text-xl shadow-[0_4px_0_#ca8a04] active:translate-y-1 active:shadow-none transition-all flex items-center justify-center gap-3"
+                        className="flex-1 py-2.5 bg-yellow-400 hover:bg-yellow-500 text-yellow-900 rounded-xl font-bold text-base shadow-[0_3px_0_#ca8a04] active:translate-y-1 active:shadow-none transition-all flex items-center justify-center gap-2"
                     >
-                        <span>VER MÁS</span>
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor" className="w-6 h-6">
+                        <span>SIGUIENTE</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor" className="w-5 h-5">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
                         </svg>
                     </button>
