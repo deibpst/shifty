@@ -5,32 +5,32 @@ import { motion, AnimatePresence } from 'framer-motion';
 const TUTORIAL_STEPS = [
     {
         step: 1,
-        title: "MEET YOUR CHARACTER",
+        title: "Conoce a tu personaje",
         content: "¡Hola! Este eres tú. Tu objetivo es avanzar y limpiar el camino.",
         highlightClass: "bottom-1/4 left-1/2 -translate-x-1/2 w-32 h-32 rounded-full",
     },
     {
         step: 2,
-        title: "THE OBJECTIVE",
+        title: "El objetivo",
         content: "Presta atención aquí. Este es el residuo que debes clasificar y el color del contenedor que debes buscar.",
         highlightClass: "top-4 left-1/2 -translate-x-1/2 w-64 h-32 rounded-3xl",
     },
     {
         step: 3,
-        title: "CONTROLS",
+        title: "Controles",
         content: "Usa las teclas A, S, D, F para moverte entre los carriles (Verde, Azul, Amarillo, Rojo).",
         // Center overlay, no specific highlight needed or maybe center
         highlightClass: "top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-64 rounded-2xl",
     },
     {
         step: 4,
-        title: "SCORE POINTS",
+        title: "Puntos",
         content: "¡Acierta el contenedor correcto y ganarás puntos para desbloquear nuevos personajes!",
         highlightClass: "top-4 right-4 w-32 h-16 rounded-full",
     },
     {
         step: 5,
-        title: "WATCH YOUR LIVES",
+        title: "Vidas",
         content: "Cuidado con los obstáculos y los contenedores equivocados, o perderás vidas. ¡Si pierdes 3, se acaba el juego!",
         highlightClass: "top-4 left-4 w-48 h-16 rounded-full",
     }

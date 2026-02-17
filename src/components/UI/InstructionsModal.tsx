@@ -26,7 +26,7 @@ export const InstructionsModal: React.FC = () => {
 
                 <h2 className="text-3xl font-black text-slate-800 mb-2 text-center mt-2">CÓMO JUGAR</h2>
                 <p className="text-slate-500 text-center mb-8 font-medium">
-                    ¡Ayuda al gato a clasificar los residuos en los contenedores correctos!
+                    ¡Ayuda a tu mascota a clasificar los residuos en los contenedores correctos!
                 </p>
 
                 <div className="grid grid-cols-2 gap-8 mb-8">
