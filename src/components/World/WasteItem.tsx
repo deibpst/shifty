@@ -2,6 +2,7 @@ import React, { useRef, useLayoutEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { Group, Mesh } from 'three';
 import { LaneColor } from '../../types';
+import { Model as ObstacleModel } from './Skull';
 
 export interface WasteObjectData {
     id: string;
@@ -17,7 +18,7 @@ interface WasteItemProps {
     laneWidth: number;
 }
 
-export const WasteItem: React.FC<WasteItemProps> = ({ data, laneWidth }) => {
+export const WasteItem: React.FC<WasteItemProps> = ({ data }) => {
     const groupRef = useRef<Group>(null);
     const meshRef = useRef<Mesh>(null);
 
@@ -62,18 +63,7 @@ export const WasteItem: React.FC<WasteItemProps> = ({ data, laneWidth }) => {
         <group ref={groupRef} position={[0, 1.0, data.z]}>
             {/* OBSTACLE */}
             {data.type === 'obstacle' ? (
-                <mesh ref={meshRef} castShadow receiveShadow frustumCulled={false}>
-                    <coneGeometry args={[1, 2, 16]} />
-                    <meshStandardMaterial
-                        color="#334155"
-                        emissive="#f59e0b"
-                        emissiveIntensity={0.5}
-                    />
-                    <mesh position={[0, 0, 0.5]} rotation={[-Math.PI / 4, 0, 0]}>
-                        <boxGeometry args={[1.2, 0.2, 0.2]} />
-                        <meshBasicMaterial color="yellow" />
-                    </mesh>
-                </mesh>
+                <ObstacleModel scale={[1, 1, 1]} />
             ) : (
                 // BIN
                 <mesh ref={meshRef} castShadow receiveShadow frustumCulled={false}>
