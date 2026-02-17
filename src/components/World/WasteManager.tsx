@@ -38,7 +38,7 @@ export const WasteManager: React.FC = () => {
 
         const time = state.clock.elapsedTime;
         const config = DIFFICULTY_CONFIG[difficulty];
-        const currentSpeed = 25 * speedMultiplier;
+        const currentSpeed = 40 * speedMultiplier;
         let needsUpdate = false;
 
         // --- 1. SPAWNING ---
