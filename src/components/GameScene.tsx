@@ -1,7 +1,7 @@
 import { Canvas } from '@react-three/fiber';
 import { Suspense } from 'react';
 import { Track } from './World/Track';
-import { CatPlayer } from './Player/CatPlayer';
+import { PlayerController } from './Player/PlayerController';
 import { WasteManager } from './World/WasteManager';
 import { PerspectiveCamera } from '@react-three/drei';
 
@@ -34,7 +34,7 @@ const GameContent: React.FC = () => {
             {/* World Components */}
             <Track />
             <WasteManager />
-            <CatPlayer />
+            <PlayerController />
 
             {/* Environment for better reflections if materials are glossy */}
             {/* <Environment preset="city" /> */}

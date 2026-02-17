@@ -8,7 +8,9 @@ interface GameState {
     gameStatus: 'menu' | 'instructions' | 'playing' | 'paused' | 'gameover' | 'customizing' | 'tutorial';
     difficulty: DifficultyLevel;
     speedMultiplier: number;
-    playerColor: string;
+    // Character State
+    selectedCharacterId: string;
+    totalAccumulatedScore: number;
 
     currentWasteItem: WasteItem | null;
 
@@ -19,7 +21,7 @@ interface GameState {
     // Actions
     startGame: () => void;
     setDifficulty: (level: DifficultyLevel) => void;
-    setPlayerColor: (color: string) => void;
+    setSelectedCharacter: (id: string) => void;
     moveLane: (direction: 'left' | 'right') => void;
     setLane: (laneIndex: number) => void;
     processCollision: (isCorrect: boolean) => void;
@@ -89,13 +91,19 @@ export const useGameStore = create<GameState>((set, get) => ({
     difficulty: 'hard', // Default to hard to show all 4 lanes as requested
     speedMultiplier: INITIAL_SPEED,
     currentWasteItem: null,
-    playerColor: '#FFA500', // Default Orange
+
+    // Character System
+    selectedCharacterId: localStorage.getItem('shifty_selected_character') || 'cat_default',
+    totalAccumulatedScore: parseInt(localStorage.getItem('shifty_total_score') || '0', 10),
 
     // Tutorial Init
     hasSeenTutorial: localStorage.getItem('shifty_tutorial_seen') === 'true',
     tutorialStep: 0,
 
-    setPlayerColor: (color) => set({ playerColor: color }),
+    setSelectedCharacter: (id) => {
+        localStorage.setItem('shifty_selected_character', id);
+        set({ selectedCharacterId: id });
+    },
 
     startGame: () => {
         const { difficulty } = get();
@@ -125,15 +133,9 @@ export const useGameStore = create<GameState>((set, get) => ({
 
     moveLane: (direction) => {
         const { gameStatus, currentLane, difficulty } = get();
-        if (gameStatus !== 'playing' && gameStatus !== 'tutorial') return; // Allow movement in tutorial if needed, or maybe not? 
-        // Request says paused, but maybe we want them to test controls? 
-        // "Step 3: ... Use keys ...". 
-        // If game is paused, they can't move? 
-        // "if gameStatus === 'tutorial', the game must be PAUSED (objects do not advance and player cannot lose lives)."
-        // This usually implies update loop is paused, but controls might work?
-        // Let's assume controls work but world is static for now, or we'll handle it in GameScene.
+        if (gameStatus !== 'playing' && gameStatus !== 'tutorial') return;
 
-        if (gameStatus === 'tutorial' && get().tutorialStep !== 3) return; // Only move in step 3? Or always? Let's allow if tutorial.
+        if (gameStatus === 'tutorial' && get().tutorialStep !== 3) return;
 
         const config = DIFFICULTY_CONFIG[difficulty];
         const maxLaneIndex = config.laneCount - 1;
@@ -161,17 +163,24 @@ export const useGameStore = create<GameState>((set, get) => ({
     },
 
     processCollision: (isCorrect) => {
-        const { lives, score, speedMultiplier, gameStatus } = get();
+        const { lives, score, speedMultiplier, gameStatus, totalAccumulatedScore } = get();
 
-        if (gameStatus === 'tutorial') return; // No collision processing in tutorial
+        if (gameStatus === 'tutorial') return;
 
         if (isCorrect) {
-            const newScore = score + 1;
-            const newSpeed = Math.min(2.0, speedMultiplier + SPEED_INCREMENT); // Cap speed
+            const points = 10; // 10 points per correct item
+            const newScore = score + points;
+            const newTotalScore = totalAccumulatedScore + points;
+
+            // Persist total score periodically or on game over? Let's do it live for now
+            localStorage.setItem('shifty_total_score', newTotalScore.toString());
+
+            const newSpeed = Math.min(2.0, speedMultiplier + SPEED_INCREMENT);
             const randomWaste = WASTE_ITEMS[Math.floor(Math.random() * WASTE_ITEMS.length)];
 
             set({
                 score: newScore,
+                totalAccumulatedScore: newTotalScore,
                 speedMultiplier: newSpeed,
                 currentWasteItem: randomWaste
             });
