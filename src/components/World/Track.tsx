@@ -24,7 +24,7 @@ export const Track: React.FC = () => {
     return (
         <group position={[0, -1, 0]}>
             {/* Grass Ground - Infinite appearance */}
-            <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.1, 0]} receiveShadow>
+            <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.1, 0]}>
                 <planeGeometry args={[floorSize, floorSize]} />
                 <meshStandardMaterial color="#4ade80" />
             </mesh>
@@ -47,7 +47,6 @@ export const Track: React.FC = () => {
                         // Center should be at (20 - ROAD_LENGTH/2).
                         // Let's just add an offset.
                         position={[xPos, 0, -ROAD_LENGTH / 2 + 20]}
-                        receiveShadow
                     >
                         <planeGeometry args={[LANE_WIDTH, ROAD_LENGTH]} />
                         <meshStandardMaterial color={LANE_COLORS[colorName]} toneMapped={false} />

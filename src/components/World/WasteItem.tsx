@@ -66,7 +66,7 @@ export const WasteItem: React.FC<WasteItemProps> = ({ data }) => {
                 <ObstacleModel scale={[1, 1, 1]} />
             ) : (
                 // BIN
-                <mesh ref={meshRef} castShadow receiveShadow frustumCulled={false}>
+                <mesh ref={meshRef} frustumCulled={false}>
                     <boxGeometry args={[2, 2, 2]} />
                     <meshStandardMaterial
                         color={colorHex}
