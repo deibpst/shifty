@@ -23,7 +23,7 @@ const CharacterPreview = ({ Component }: { Component: any }) => {
     });
 
     return (
-        <group ref={ref} position={[0, -1, 0]}>
+        <group ref={ref} position={[0, -0.4, 0]}>
             <Component currentAction="Idle" />
         </group>
     );
