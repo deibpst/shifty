@@ -1,4 +1,4 @@
-import React, { useRef, useMemo } from 'react';
+import React, { useRef, useMemo, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { useGameStore } from '../../store';
 import { Model as Tree1 } from './Tree_1';
@@ -9,15 +9,18 @@ import { Model as GrassSmall } from './Grass_Small';
 import * as THREE from 'three';
 
 // Configuration
-const POOL_SIZE = 40; // Total decorative objects
-const SPAWN_Z_START = -20; // Start spawning from here
-const SPAWN_Z_END = -200; // Deepest spawn point
-const RESET_Z = -200; // Where they go when recycled
-const DESPAWN_Z = 15; // Behind camera
+const MAX_POOL_SIZE = 200; // Increased to 200 for maximum density
+const BASE_ACTIVE_COUNT = 200; // ALL ACTIVE. No empty spaces.
+const SCORE_FOR_MAX_DENSITY = 0; // Immediate max density
+const SPAWN_Z_START = -5; // Start right in front of camera
+const SPAWN_Z_END = -300; // Go way deep
+const TRACK_LENGTH = Math.abs(SPAWN_Z_END - SPAWN_Z_START);
+const RESET_Z = -300;
+const DESPAWN_Z = 25;
 
 // X Ranges for side placement
 const LEFT_X_MIN = -15;
-const LEFT_X_MAX = -6; // Avoid track (-4 to 4)
+const LEFT_X_MAX = -6;
 const RIGHT_X_MIN = 6;
 const RIGHT_X_MAX = 15;
 
@@ -25,10 +28,11 @@ type SceneryType = 'tree1' | 'tree2' | 'flowers' | 'grassBig' | 'grassSmall';
 
 interface SceneryObject {
     id: string;
-    type: SceneryType;
-    position: THREE.Vector3;
+    initialType: SceneryType;
+    initialPosition: THREE.Vector3;
     scale: number;
     rotationY: number;
+    index: number;
 }
 
 export const EnvironmentManager: React.FC = () => {
@@ -39,7 +43,7 @@ export const EnvironmentManager: React.FC = () => {
         const objects: SceneryObject[] = [];
         const types: SceneryType[] = ['tree1', 'tree2', 'flowers', 'grassBig', 'grassSmall'];
 
-        for (let i = 0; i < POOL_SIZE; i++) {
+        for (let i = 0; i < MAX_POOL_SIZE; i++) {
             const isLeft = Math.random() > 0.5;
             const xRange = isLeft
                 ? [LEFT_X_MIN, LEFT_X_MAX]
@@ -47,14 +51,17 @@ export const EnvironmentManager: React.FC = () => {
 
             const x = THREE.MathUtils.randFloat(xRange[0], xRange[1]);
             // Spread them out initially
-            const z = THREE.MathUtils.randFloat(SPAWN_Z_END, SPAWN_Z_START);
+            const zStep = TRACK_LENGTH / MAX_POOL_SIZE;
+            const zJitter = THREE.MathUtils.randFloat(-2, 2);
+            const z = SPAWN_Z_START - (i * zStep) + zJitter;
 
             objects.push({
                 id: `scenery-${i}`,
-                type: types[Math.floor(Math.random() * types.length)],
-                position: new THREE.Vector3(x, 0, z),
+                initialType: types[Math.floor(Math.random() * types.length)],
+                initialPosition: new THREE.Vector3(x, 0, z),
                 scale: THREE.MathUtils.randFloat(0.8, 1.4),
-                rotationY: THREE.MathUtils.randFloat(0, Math.PI * 2)
+                rotationY: THREE.MathUtils.randFloat(0, Math.PI * 2),
+                index: i
             });
         }
         return objects;
@@ -95,41 +102,54 @@ export const EnvironmentManager: React.FC = () => {
 
 const SceneryItem: React.FC<{ data: SceneryObject }> = ({ data }) => {
     const groupRef = useRef<THREE.Group>(null);
-    const { speedMultiplier, gameStatus } = useGameStore();
+    const { speedMultiplier, gameStatus, score } = useGameStore();
+    const [sceneryType, setSceneryType] = useState<SceneryType>(data.initialType);
 
-    // Local state for Z to avoid modifying the read-only prop data (though objects are mutable)
-    // We will just use the ref position for rendering.
+    const isActive = data.index < (BASE_ACTIVE_COUNT + (score / 40));
 
     useFrame((_, delta) => {
+        if (!groupRef.current) return;
+
+        if (!isActive) {
+            groupRef.current.visible = false;
+            groupRef.current.position.z = RESET_Z;
+            return;
+        }
+
+        groupRef.current.visible = true;
+
         if (gameStatus !== 'playing' && gameStatus !== 'tutorial') return;
-        if (gameStatus === 'tutorial') return; // Pause in tutorial? Or move slow? User said "same logic as obstacles"
+        if (gameStatus === 'tutorial') return;
 
-        const currentSpeed = 40 * speedMultiplier; // Match WasteManager speed
+        const currentSpeed = 40 * speedMultiplier;
 
-        if (groupRef.current) {
-            // Move towards camera
-            groupRef.current.position.z += currentSpeed * delta;
+        // Move
+        groupRef.current.position.z += currentSpeed * delta;
 
-            // Recycle
-            if (groupRef.current.position.z > DESPAWN_Z) {
-                // Reset Z to horizon
-                groupRef.current.position.z = RESET_Z;
+        // Recycle
+        if (groupRef.current.position.z > DESPAWN_Z) {
+            groupRef.current.position.z = RESET_Z;
 
-                // Randomize X again
-                const isLeft = Math.random() > 0.5;
-                const xRange = isLeft
-                    ? [LEFT_X_MIN, LEFT_X_MAX]
-                    : [RIGHT_X_MIN, RIGHT_X_MAX];
-                groupRef.current.position.x = THREE.MathUtils.randFloat(xRange[0], xRange[1]);
+            const isLeft = Math.random() > 0.5;
+            const xRange = isLeft ? [LEFT_X_MIN, LEFT_X_MAX] : [RIGHT_X_MIN, RIGHT_X_MAX];
+            groupRef.current.position.x = THREE.MathUtils.randFloat(xRange[0], xRange[1]);
+            groupRef.current.rotation.y = THREE.MathUtils.randFloat(0, Math.PI * 2);
 
-                // Randomize Y rotation for variety
-                groupRef.current.rotation.y = THREE.MathUtils.randFloat(0, Math.PI * 2);
+            // DYNAMIC TYPE GENERATION
+            // "Mientras mas puntos... mas Flowers_1"
+            const flowerChance = Math.min(0.6, 0.2 + (score / 3000));
+
+            if (Math.random() < flowerChance) {
+                setSceneryType('flowers');
+            } else {
+                const others: SceneryType[] = ['tree1', 'tree2', 'grassBig', 'grassSmall'];
+                setSceneryType(others[Math.floor(Math.random() * others.length)]);
             }
         }
     });
 
     const getComponent = () => {
-        switch (data.type) {
+        switch (sceneryType) {
             case 'tree1': return <Tree1 />;
             case 'tree2': return <Tree2 />;
             case 'flowers': return <Flowers1 />;
@@ -142,7 +162,7 @@ const SceneryItem: React.FC<{ data: SceneryObject }> = ({ data }) => {
     return (
         <group
             ref={groupRef}
-            position={data.position}
+            position={data.initialPosition}
             scale={[data.scale, data.scale, data.scale]}
             rotation={[0, data.rotationY, 0]}
         >
