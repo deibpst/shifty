@@ -23,6 +23,16 @@ export const Customizer: React.FC = () => {
                 animate={{ y: 0, opacity: 1 }}
                 className="bg-white/90 backdrop-blur-xl p-8 rounded-3xl shadow-2xl max-w-lg w-full text-center border border-white/50"
             >
+                <button
+                    onClick={() => setGameStatus('menu')}
+                    className="absolute top-6 left-6 p-3 bg-white/20 backdrop-blur-md rounded-full text-white hover:bg-white/30 transition-all shadow-lg group"
+                    aria-label="Back to Menu"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-6 h-6 group-hover:-translate-x-1 transition-transform">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+                    </svg>
+                </button>
+
                 <h2 className="text-4xl font-black text-slate-800 mb-8">CHOOSE YOUR STYLE</h2>
 
                 <div className="flex justify-center flex-wrap gap-4 mb-10">

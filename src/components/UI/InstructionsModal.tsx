@@ -14,7 +14,17 @@ export const InstructionsModal: React.FC = () => {
             >
                 <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-green-400 via-blue-500 to-red-500" />
 
-                <h2 className="text-3xl font-black text-slate-800 mb-2 text-center">HOW TO PLAY</h2>
+                <button
+                    onClick={() => useGameStore.getState().setGameStatus('menu')}
+                    className="absolute top-4 left-4 p-2 bg-slate-100 rounded-full text-slate-600 hover:bg-slate-200 transition-all z-10"
+                    aria-label="Back to Menu"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-5 h-5">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+                    </svg>
+                </button>
+
+                <h2 className="text-3xl font-black text-slate-800 mb-2 text-center mt-2">HOW TO PLAY</h2>
                 <p className="text-slate-500 text-center mb-8 font-medium">
                     Help the cat sort the waste into the correct bins!
                 </p>

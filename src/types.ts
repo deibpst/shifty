@@ -7,6 +7,7 @@ export interface WasteItem {
   name: string;
   type: WasteType;
   correctLaneColor: LaneColor;
+  emoji: string;
 }
 
 export interface LaneConfig {

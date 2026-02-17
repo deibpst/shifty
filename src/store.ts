@@ -28,20 +28,47 @@ const INITIAL_LIVES = 3;
 const INITIAL_SPEED = 0.6;
 const SPEED_INCREMENT = 0.05;
 
-// Updated Waste Data with 4 Categories
+// Updated Waste Data with 4 Categories and Emojis
 const WASTE_ITEMS: WasteItem[] = [
     // Green (Organic)
-    { id: '1', name: 'Banana Peel', type: 'organic', correctLaneColor: 'green' },
-    { id: '2', name: 'Apple Core', type: 'organic', correctLaneColor: 'green' },
+    { id: '1', name: 'Banana Peel', type: 'organic', correctLaneColor: 'green', emoji: '🍌' },
+    { id: '2', name: 'Apple Core', type: 'organic', correctLaneColor: 'green', emoji: '🍎' },
+    { id: '101', name: 'Egg Shell', type: 'organic', correctLaneColor: 'green', emoji: '🥚' },
+    { id: '102', name: 'Fish Bone', type: 'organic', correctLaneColor: 'green', emoji: '🐟' },
+    { id: '103', name: 'Watermelon Peel', type: 'organic', correctLaneColor: 'green', emoji: '🍉' },
+    { id: '104', name: 'Leaves', type: 'organic', correctLaneColor: 'green', emoji: '🍂' },
+    { id: '105', name: 'Carrot Top', type: 'organic', correctLaneColor: 'green', emoji: '🥕' },
+    { id: '106', name: 'Bread Crust', type: 'organic', correctLaneColor: 'green', emoji: '🍞' },
+
     // Blue (Paper/Plastic)
-    { id: '3', name: 'Newspaper', type: 'paper_plastic', correctLaneColor: 'blue' },
-    { id: '4', name: 'Water Bottle', type: 'paper_plastic', correctLaneColor: 'blue' },
-    // Yellow (Metal/PET)
-    { id: '5', name: 'Soda Can', type: 'metal_pet', correctLaneColor: 'yellow' },
-    { id: '6', name: 'Soup Can', type: 'metal_pet', correctLaneColor: 'yellow' },
-    // Red (Hazardous)
-    { id: '7', name: 'Battery', type: 'hazardous', correctLaneColor: 'red' },
-    { id: '8', name: 'Light Bulb', type: 'hazardous', correctLaneColor: 'red' },
+    { id: '3', name: 'Newspaper', type: 'paper_plastic', correctLaneColor: 'blue', emoji: '📰' },
+    { id: '4', name: 'Water Bottle', type: 'paper_plastic', correctLaneColor: 'blue', emoji: '💧' },
+    { id: '201', name: 'Cookie Wrapper', type: 'paper_plastic', correctLaneColor: 'blue', emoji: '🍪' },
+    { id: '202', name: 'Milk Carton', type: 'paper_plastic', correctLaneColor: 'blue', emoji: '🥛' },
+    { id: '203', name: 'Cardboard Box', type: 'paper_plastic', correctLaneColor: 'blue', emoji: '📦' },
+    { id: '204', name: 'Shopping Bag', type: 'paper_plastic', correctLaneColor: 'blue', emoji: '🛍️' },
+    { id: '205', name: 'Yogurt Cup', type: 'paper_plastic', correctLaneColor: 'blue', emoji: '🥣' },
+    { id: '206', name: 'Notebook Paper', type: 'paper_plastic', correctLaneColor: 'blue', emoji: '📝' },
+
+    // Yellow (Metal/PET) - Note: In some systems PET is plastic, but following user request grouping
+    { id: '5', name: 'Soda Can', type: 'metal_pet', correctLaneColor: 'yellow', emoji: '🥤' },
+    { id: '6', name: 'Soup Can', type: 'metal_pet', correctLaneColor: 'yellow', emoji: '🥫' },
+    { id: '301', name: 'Tuna Can', type: 'metal_pet', correctLaneColor: 'yellow', emoji: '🐟' },
+    { id: '302', name: 'Aluminum Foil', type: 'metal_pet', correctLaneColor: 'yellow', emoji: '🌯' },
+    { id: '303', name: 'Bottle Cap', type: 'metal_pet', correctLaneColor: 'yellow', emoji: '🔘' },
+    { id: '304', name: 'Spray Paint', type: 'metal_pet', correctLaneColor: 'yellow', emoji: '🎨' },
+    { id: '305', name: 'Tools', type: 'metal_pet', correctLaneColor: 'yellow', emoji: '🔧' },
+    { id: '306', name: 'Metal Pipe', type: 'metal_pet', correctLaneColor: 'yellow', emoji: '🔩' },
+
+    // Red (Hazardous/Various)
+    { id: '7', name: 'Battery', type: 'hazardous', correctLaneColor: 'red', emoji: '🔋' },
+    { id: '8', name: 'Light Bulb', type: 'hazardous', correctLaneColor: 'red', emoji: '💡' },
+    { id: '401', name: 'Syringe', type: 'hazardous', correctLaneColor: 'red', emoji: '💉' },
+    { id: '402', name: 'Pills', type: 'hazardous', correctLaneColor: 'red', emoji: '💊' },
+    { id: '403', name: 'Paint Bucket', type: 'hazardous', correctLaneColor: 'red', emoji: '🖌️' },
+    { id: '404', name: 'Thermometer', type: 'hazardous', correctLaneColor: 'red', emoji: '🌡️' },
+    { id: '405', name: 'Smartphone', type: 'hazardous', correctLaneColor: 'red', emoji: '📱' },
+    { id: '406', name: 'Bug Spray', type: 'hazardous', correctLaneColor: 'red', emoji: '🦟' },
 ];
 
 export const useGameStore = create<GameState>((set, get) => ({

@@ -5,39 +5,44 @@ import { motion, AnimatePresence } from 'framer-motion';
 export const HUD: React.FC = () => {
     const { score, lives, currentWasteItem, difficulty } = useGameStore();
 
+    if (!currentWasteItem) return null;
+
+    const laneColor = currentWasteItem.correctLaneColor;
+    const bgColor = getPastelColor(laneColor);
+    const borderColor = getBorderColor(laneColor);
+
     return (
         <div className="absolute inset-0 pointer-events-none p-4 flex flex-col justify-between">
 
             {/* Active Waste Card (TOP CENTER) */}
             <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 w-full flex justify-center">
                 <AnimatePresence mode="wait">
-                    {currentWasteItem && (
-                        <motion.div
-                            key={currentWasteItem.id}
-                            initial={{ y: -50, opacity: 0 }}
-                            animate={{ y: 0, opacity: 1 }}
-                            exit={{ y: -50, opacity: 0 }}
-                            transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                            className="bg-white/40 backdrop-blur-md px-8 py-4 rounded-3xl shadow-2xl flex items-center gap-6"
-                            style={{
-                                boxShadow: `0 8px 32px 0 rgba(31, 38, 135, 0.2), 0 0 0 4px ${getColorHex(currentWasteItem.correctLaneColor)}`
-                            }}
-                        >
-                            {/* Icon Placeholder */}
-                            <div className={`w-12 h-12 rounded-full flex items-center justify-center text-2xl bg-${currentWasteItem.correctLaneColor}-500 shadow-inner border-2 border-white`}>
-                                🗑️
-                            </div>
+                    <motion.div
+                        key={currentWasteItem.id}
+                        initial={{ y: -50, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        exit={{ y: -50, opacity: 0 }}
+                        transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                        className="px-8 py-4 rounded-2xl shadow-lg flex items-center gap-6 transition-colors duration-300"
+                        style={{
+                            backgroundColor: bgColor,
+                            border: `4px solid ${borderColor}`
+                        }}
+                    >
+                        {/* Icon - Emoji */}
+                        <div className="text-5xl filter drop-shadow-sm">
+                            {currentWasteItem.emoji}
+                        </div>
 
-                            <div className="flex flex-col">
-                                <div className="text-xs font-bold text-slate-800 uppercase tracking-widest opacity-80">
-                                    FIND THIS LANE
-                                </div>
-                                <div className="text-2xl font-black text-slate-900 drop-shadow-sm leading-none">
-                                    {currentWasteItem.name}
-                                </div>
+                        <div className="flex flex-col">
+                            <div className="text-xs font-bold text-slate-800 uppercase tracking-widest opacity-70">
+                                FIND THIS LANE
                             </div>
-                        </motion.div>
-                    )}
+                            <div className="text-2xl font-black text-slate-900 drop-shadow-sm leading-none">
+                                {currentWasteItem.name}
+                            </div>
+                        </div>
+                    </motion.div>
                 </AnimatePresence>
             </div>
 
@@ -49,7 +54,7 @@ export const HUD: React.FC = () => {
                         <motion.div
                             key={i}
                             initial={false}
-                            animate={{ scale: i < lives ? 1 : 0.5, opacity: i < lives ? 1 : 0.2 }}
+                            animate={{ scale: i < lives ? 1 : 0.8, opacity: i < lives ? 1 : 0.3 }}
                             className="text-4xl filter drop-shadow-lg"
                         >
                             ❤️
@@ -73,13 +78,22 @@ export const HUD: React.FC = () => {
     );
 };
 
-// Helper for dynamic colors
-function getColorHex(color: string) {
+function getPastelColor(color: string) {
     switch (color) {
-        case 'green': return '#22c55e';
-        case 'blue': return '#3b82f6';
-        case 'yellow': return '#eab308';
-        case 'red': return '#ef4444';
-        default: return '#94a3b8';
+        case 'green': return '#A2E4B8';
+        case 'blue': return '#AEC6CF';
+        case 'yellow': return '#FDFD96';
+        case 'red': return '#FFB3BA';
+        default: return '#f1f5f9';
+    }
+}
+
+function getBorderColor(color: string) {
+    switch (color) {
+        case 'green': return '#86efac';
+        case 'blue': return '#93c5fd';
+        case 'yellow': return '#fde047';
+        case 'red': return '#fca5a5';
+        default: return '#cbd5e1';
     }
 }
