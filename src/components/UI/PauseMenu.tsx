@@ -35,7 +35,7 @@ export const PauseMenu: React.FC = () => {
                                 ¡Pausa!
                             </h2>
                             <p className="text-slate-400 font-medium mb-8 text-lg">
-                                Tómate un respiro 🍃
+                                Tómate un respiro
                             </p>
 
                             <div className="flex flex-col gap-4">
@@ -48,9 +48,9 @@ export const PauseMenu: React.FC = () => {
 
                                 <button
                                     onClick={handleExit}
-                                    className="w-full py-4 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-2xl font-bold text-lg hover:text-slate-800 transition-colors flex items-center justify-center gap-2"
+                                    className="w-full py-4 bg-red-500 hover:bg-red-600 text-white rounded-2xl font-bold text-lg shadow-[0_4px_0_#991b1b] active:shadow-none active:translate-y-1 transition-all flex items-center justify-center gap-2"
                                 >
-                                    <span>🏠</span> Menú Principal
+                                    <span></span> Menú Principal
                                 </button>
                             </div>
                         </div>
