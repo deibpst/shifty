@@ -41,7 +41,12 @@ export const Track: React.FC = () => {
                     <mesh
                         key={`lane-${i}`}
                         rotation={[-Math.PI / 2, 0, 0]}
-                        position={[xPos, 0, -ROAD_LENGTH / 2]}
+                        // Z pos: -ROAD_LENGTH/2 (center of plane) + 20 (shift forward)
+                        // Plane length is ROAD_LENGTH. 
+                        // To make it start at say Z=20 and go back to -280:
+                        // Center should be at (20 - ROAD_LENGTH/2).
+                        // Let's just add an offset.
+                        position={[xPos, 0, -ROAD_LENGTH / 2 + 20]}
                         receiveShadow
                     >
                         <planeGeometry args={[LANE_WIDTH, ROAD_LENGTH]} />
@@ -57,7 +62,7 @@ export const Track: React.FC = () => {
                     <mesh
                         key={`divider-${i}`}
                         rotation={[-Math.PI / 2, 0, 0]}
-                        position={[xPos, 0.01, -ROAD_LENGTH / 2]}
+                        position={[xPos, 0.01, -ROAD_LENGTH / 2 + 20]}
                     >
                         <planeGeometry args={[0.1, ROAD_LENGTH]} />
                         <meshStandardMaterial color="white" opacity={0.8} transparent />
@@ -71,7 +76,7 @@ export const Track: React.FC = () => {
                 position={[
                     -totalWidth / 2 + (currentLane * LANE_WIDTH) + (LANE_WIDTH / 2),
                     0.02,
-                    -ROAD_LENGTH / 2
+                    -ROAD_LENGTH / 2 + 20
                 ]}
             >
                 <planeGeometry args={[LANE_WIDTH * 0.9, ROAD_LENGTH]} />
