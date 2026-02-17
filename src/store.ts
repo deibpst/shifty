@@ -34,6 +34,8 @@ interface GameState {
     nextTutorialStep: () => void;
     completeTutorial: () => void;
     skipTutorial: () => void;
+    isPaused: boolean;
+    togglePause: () => void;
 }
 
 const INITIAL_LIVES = 3;
@@ -119,6 +121,7 @@ export const useGameStore = create<GameState>((set, get) => ({
             speedMultiplier: INITIAL_SPEED,
             currentLane: startLane,
             currentWasteItem: randomWaste,
+            isPaused: false,
         });
     },
 
@@ -132,8 +135,8 @@ export const useGameStore = create<GameState>((set, get) => ({
     },
 
     moveLane: (direction) => {
-        const { gameStatus, currentLane, difficulty } = get();
-        if (gameStatus !== 'playing' && gameStatus !== 'tutorial') return;
+        const { gameStatus, currentLane, difficulty, isPaused } = get();
+        if ((gameStatus !== 'playing' && gameStatus !== 'tutorial') || isPaused) return;
 
         if (gameStatus === 'tutorial' && get().tutorialStep !== 3) return;
 
@@ -153,8 +156,8 @@ export const useGameStore = create<GameState>((set, get) => ({
     },
 
     setLane: (laneIndex) => {
-        const { gameStatus, difficulty } = get();
-        if (gameStatus !== 'playing' && gameStatus !== 'tutorial') return;
+        const { gameStatus, difficulty, isPaused } = get();
+        if ((gameStatus !== 'playing' && gameStatus !== 'tutorial') || isPaused) return;
 
         const config = DIFFICULTY_CONFIG[difficulty];
         if (laneIndex >= 0 && laneIndex < config.laneCount) {
@@ -214,6 +217,15 @@ export const useGameStore = create<GameState>((set, get) => ({
         set({ currentWasteItem: randomWaste });
     },
 
+    // Pause System
+    isPaused: false,
+    togglePause: () => {
+        const { gameStatus, isPaused } = get();
+        if (gameStatus !== 'playing' && gameStatus !== 'tutorial') return;
+
+        set({ isPaused: !isPaused });
+    },
+
     // Tutorial Implementation
     startTutorial: () => {
         const { difficulty } = get();
@@ -229,7 +241,8 @@ export const useGameStore = create<GameState>((set, get) => ({
             score: 0,
             lives: INITIAL_LIVES,
             currentLane: startLane,
-            currentWasteItem: randomWaste
+            currentWasteItem: randomWaste,
+            isPaused: false
         });
     },
 

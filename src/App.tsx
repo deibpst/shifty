@@ -8,10 +8,13 @@ import { useGameStore } from './store';
 
 import { TutorialOverlay } from './components/UI/TutorialOverlay';
 
+import { PauseMenu } from './components/UI/PauseMenu';
+
 function App() {
     const setLane = useGameStore((state) => state.setLane);
     const setGameStatus = useGameStore((state) => state.setGameStatus);
     const gameStatus = useGameStore((state) => state.gameStatus);
+    const togglePause = useGameStore((state) => state.togglePause);
 
     // Initial mount check
     useEffect(() => {
@@ -22,6 +25,12 @@ function App() {
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
             const key = e.key.toLowerCase();
+
+            // GLOBAL CONTROLS
+            if (key === ' ') {
+                togglePause();
+                return;
+            }
 
             // GAMEPLAY CONTROLS
             // Allow controls in tutorial step 3
@@ -39,7 +48,7 @@ function App() {
 
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [setLane, gameStatus]);
+    }, [setLane, gameStatus, togglePause]);
 
     const handleShowInstructions = () => {
         setGameStatus('instructions');
@@ -54,6 +63,9 @@ function App() {
             {(gameStatus === 'playing' || gameStatus === 'tutorial') && <HUD />}
 
             {/* --- OVERLAYS --- */}
+
+            {/* PAUSE MENU */}
+            <PauseMenu />
 
             {/* 0. TUTORIAL */}
             {gameStatus === 'tutorial' && <TutorialOverlay />}

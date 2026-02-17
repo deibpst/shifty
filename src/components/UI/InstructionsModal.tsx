@@ -39,7 +39,11 @@ export const InstructionsModal: React.FC = () => {
                             <ControlRow keyChar="D" color="yellow" label="Carril Amarillo" />
                             <ControlRow keyChar="F" color="red" label="Carril Rojo" />
                         </div>
-                        <p className="mt-4 text-xs text-slate-400 text-center">O usa las Flechas</p>
+                        <div className="mt-4 flex items-center justify-center gap-3 text-slate-400">
+                            <span className="text-xs">O Uza las Flechas</span>
+                            <span className="text-xs">•</span>
+                            <span className="text-xs font-bold text-slate-500">Espacio = Pausa</span>
+                        </div>
                     </div>
 
                     {/* LEGEND */}

@@ -120,6 +120,7 @@ const SceneryItem: React.FC<{ data: SceneryObject }> = ({ data }) => {
 
         if (gameStatus !== 'playing' && gameStatus !== 'tutorial') return;
         if (gameStatus === 'tutorial') return;
+        if (useGameStore.getState().isPaused) return;
 
         const currentSpeed = 40 * speedMultiplier;
 

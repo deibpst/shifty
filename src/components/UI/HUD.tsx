@@ -62,15 +62,23 @@ export const HUD: React.FC = () => {
                     ))}
                 </div>
 
-                {/* Score Top Right */}
-                <div className="bg-white/90 backdrop-blur px-6 py-2 rounded-full shadow-lg border-2 border-slate-200">
-                    <span className="text-2xl font-black text-slate-700 font-mono">
-                        {score.toString().padStart(4, '0')}
-                    </span>
+                {/* Score & Pause Group */}
+                <div className="flex items-center gap-4 pointer-events-auto">
+                    <div className="bg-white/90 backdrop-blur px-6 py-2 rounded-full shadow-lg border-2 border-slate-200">
+                        <span className="text-2xl font-black text-slate-700 font-mono">
+                            {score.toString().padStart(4, '0')}
+                        </span>
+                    </div>
+
+                    <button
+                        onClick={() => useGameStore.getState().togglePause()}
+                        className="w-12 h-12 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center hover:bg-white/40 transition-colors border-2 border-white/50 shadow-sm"
+                        title="Pausar (Espacio)"
+                    >
+                        <span className="text-2xl">⏸️</span>
+                    </button>
                 </div>
             </div>
-
-
         </div>
     );
 };

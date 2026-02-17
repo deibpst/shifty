@@ -28,6 +28,9 @@ export const WasteManager: React.FC = () => {
     useFrame((state, delta) => {
         if (gameStatus !== 'playing' && gameStatus !== 'tutorial') return;
 
+        // Check Pause
+        if (useGameStore.getState().isPaused) return;
+
         // In tutorial, we might want to render static objects or just nothing?
         // "Si gameStatus === 'tutorial', el juego debe estar PAUSADO (los objetos no avanzan...)"
         if (gameStatus === 'tutorial') {
