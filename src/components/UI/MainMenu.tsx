@@ -1,6 +1,7 @@
 import React from 'react';
 import { useGameStore } from '../../store';
 import { motion } from 'framer-motion';
+import { connectToSerial } from '../../hooks/useSerialController';
 
 export const MainMenu: React.FC = () => {
     const setGameStatus = useGameStore((state) => state.setGameStatus);
@@ -47,6 +48,15 @@ export const MainMenu: React.FC = () => {
                         className="w-64 py-4 rounded-full bg-gradient-to-r from-blue-400 to-blue-600 text-white text-2xl font-black shadow-[0_0_20px_rgba(59,130,246,0.6)] border-4 border-white/20"
                     >
                         PERSONALIZAR
+                    </motion.button>
+
+                    <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => connectToSerial()}
+                        className="w-64 py-3 mt-4 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-200 text-lg font-bold shadow-lg border-2 border-slate-600 transition-colors flex items-center justify-center gap-2"
+                    >
+                        🔌 Conectar Mando USB
                     </motion.button>
                 </div>
             </motion.div>

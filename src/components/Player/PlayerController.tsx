@@ -5,6 +5,7 @@ import { useGameStore } from '../../store';
 import { DIFFICULTY_CONFIG } from '../../types';
 import * as THREE from 'three';
 import { AVAILABLE_CHARACTERS } from '../../data/CharacterData';
+import { sendSerialMessage } from '../../hooks/useSerialController';
 
 const LANE_WIDTH = 3.0;
 const LERP_SPEED = 10;
@@ -36,12 +37,14 @@ export const PlayerController: React.FC = () => {
         // DETECT SCORE INCREASE (Happy)
         if (score > prevScore.current) {
             handleAnimationTrigger('Jump_Loop', 1000);
+            sendSerialMessage("success\n");
         }
         prevScore.current = score;
 
         // DETECT LIFE LOSS (Hit)
         if (lives < prevLives.current) {
             handleAnimationTrigger('Death', 1000);
+            sendSerialMessage("error\n");
         }
         prevLives.current = lives;
 

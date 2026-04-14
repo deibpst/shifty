@@ -36,6 +36,8 @@ interface GameState {
     skipTutorial: () => void;
     isPaused: boolean;
     togglePause: () => void;
+    isMuted: boolean;
+    toggleMute: () => void;
 }
 
 const INITIAL_LIVES = 3;
@@ -224,6 +226,12 @@ export const useGameStore = create<GameState>((set, get) => ({
         if (gameStatus !== 'playing' && gameStatus !== 'tutorial') return;
 
         set({ isPaused: !isPaused });
+    },
+
+    // Sound System
+    isMuted: false,
+    toggleMute: () => {
+        set((state) => ({ isMuted: !state.isMuted }));
     },
 
     // Tutorial Implementation
