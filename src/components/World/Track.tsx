@@ -12,6 +12,41 @@ const LANE_COLORS: Record<string, string> = {
     red: '#ef4444'     // Vivid Red
 };
 
+import { useFrame } from '@react-three/fiber';
+import { useRef } from 'react';
+import { MeshStandardMaterial } from 'three';
+
+const Lane: React.FC<{ colorName: string; xPos: number }> = ({ colorName, xPos }) => {
+    const matRef = useRef<MeshStandardMaterial>(null);
+    const { gameMode, mindshiftPhase, currentWasteItem } = useGameStore();
+    const colorHex = LANE_COLORS[colorName];
+
+    useFrame((state) => {
+        if (!matRef.current) return;
+        
+        const isDistractor = gameMode === 'mindshift' && mindshiftPhase === 2 && currentWasteItem?.mindshiftDistractorLane === colorName;
+        
+        if (isDistractor) {
+            const time = state.clock.elapsedTime;
+            matRef.current.emissiveIntensity = 0.5 + Math.sin(time * 15) * 0.8;
+            matRef.current.emissive.set(colorHex);
+        } else {
+            matRef.current.emissiveIntensity = 0;
+            matRef.current.emissive.setHex(0x000000);
+        }
+    });
+
+    return (
+        <mesh
+            rotation={[-Math.PI / 2, 0, 0]}
+            position={[xPos, 0, -ROAD_LENGTH / 2 + 20]}
+        >
+            <planeGeometry args={[LANE_WIDTH, ROAD_LENGTH]} />
+            <meshStandardMaterial ref={matRef} color={colorHex} toneMapped={false} />
+        </mesh>
+    );
+};
+
 export const Track: React.FC = () => {
     const difficulty = useGameStore((state) => state.difficulty);
     const currentLane = useGameStore((state) => state.currentLane);
@@ -31,27 +66,8 @@ export const Track: React.FC = () => {
 
             {/* Colored Lanes */}
             {config.colors.map((colorName, i) => {
-                // Calculate x position for this specific lane
-                // Total width is centered at 0
-                // Left edge is -totalWidth / 2
-                // Lane center is Left Edge + (i * Width) + (Width / 2)
                 const xPos = -totalWidth / 2 + (i * LANE_WIDTH) + (LANE_WIDTH / 2);
-
-                return (
-                    <mesh
-                        key={`lane-${i}`}
-                        rotation={[-Math.PI / 2, 0, 0]}
-                        // Z pos: -ROAD_LENGTH/2 (center of plane) + 20 (shift forward)
-                        // Plane length is ROAD_LENGTH. 
-                        // To make it start at say Z=20 and go back to -280:
-                        // Center should be at (20 - ROAD_LENGTH/2).
-                        // Let's just add an offset.
-                        position={[xPos, 0, -ROAD_LENGTH / 2 + 20]}
-                    >
-                        <planeGeometry args={[LANE_WIDTH, ROAD_LENGTH]} />
-                        <meshStandardMaterial color={LANE_COLORS[colorName]} toneMapped={false} />
-                    </mesh>
-                );
+                return <Lane key={`lane-${i}`} colorName={colorName} xPos={xPos} />;
             })}
 
             {/* Lane Dividers (White Lines) */}

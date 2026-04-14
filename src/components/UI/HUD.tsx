@@ -3,7 +3,7 @@ import { useGameStore } from '../../store';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export const HUD: React.FC = () => {
-    const { score, lives, currentWasteItem } = useGameStore();
+    const { score, lives, currentWasteItem, gameMode, mindshiftPhase } = useGameStore();
 
     if (!currentWasteItem) return null;
 
@@ -36,7 +36,7 @@ export const HUD: React.FC = () => {
 
                         <div className="flex flex-col">
                             <div className="text-xs font-bold text-slate-800 uppercase tracking-widest opacity-70">
-                                CLASIFICA:
+                                {gameMode === 'mindshift' ? `MINDSHIFT FASE ${mindshiftPhase}` : 'CLASIFICA:'}
                             </div>
                             <div className="text-2xl font-black text-slate-900 drop-shadow-sm leading-none">
                                 {currentWasteItem.name}

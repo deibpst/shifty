@@ -1,11 +1,11 @@
 import { create } from 'zustand';
-import { DifficultyLevel, DIFFICULTY_CONFIG, WasteItem } from './types';
+import { DifficultyLevel, DIFFICULTY_CONFIG, WasteItem, GameMode, MindshiftStatItem, LaneColor } from './types';
 
 interface GameState {
     score: number;
     lives: number;
     currentLane: number; // 0-indexed
-    gameStatus: 'menu' | 'instructions' | 'playing' | 'paused' | 'gameover' | 'customizing' | 'tutorial';
+    gameStatus: 'menu' | 'categorySelect' | 'instructions' | 'playing' | 'paused' | 'gameover' | 'customizing' | 'tutorial';
     difficulty: DifficultyLevel;
     speedMultiplier: number;
     // Character State
@@ -18,15 +18,24 @@ interface GameState {
     hasSeenTutorial: boolean;
     tutorialStep: number;
 
+    // Mindshift State
+    gameMode: GameMode;
+    mindshiftPhase: number;
+    mindshiftPlaysInPhase: number;
+    mindshiftStats: MindshiftStatItem[];
+    mindshiftItemSpawnTime: number;
+
     // Actions
+    setGameMode: (mode: GameMode) => void;
+    generateMindshiftItem: (phase: number) => WasteItem;
     startGame: () => void;
     setDifficulty: (level: DifficultyLevel) => void;
     setSelectedCharacter: (id: string) => void;
     moveLane: (direction: 'left' | 'right') => void;
     setLane: (laneIndex: number) => void;
-    processCollision: (isCorrect: boolean) => void;
+    processCollision: (isCorrect: boolean, choseDistractor?: boolean) => void;
     resetGame: () => void;
-    setGameStatus: (status: 'menu' | 'instructions' | 'playing' | 'paused' | 'gameover' | 'customizing' | 'tutorial') => void;
+    setGameStatus: (status: 'menu' | 'categorySelect' | 'instructions' | 'playing' | 'paused' | 'gameover' | 'customizing' | 'tutorial') => void;
     randomizeWaste: () => void;
 
     // Tutorial Actions
@@ -94,6 +103,13 @@ export const useGameStore = create<GameState>((set, get) => ({
     speedMultiplier: INITIAL_SPEED,
     currentWasteItem: null,
 
+    // Mindshift Initial State
+    gameMode: 'garbage',
+    mindshiftPhase: 1,
+    mindshiftPlaysInPhase: 0,
+    mindshiftStats: [],
+    mindshiftItemSpawnTime: 0,
+
     // Character System
     selectedCharacterId: localStorage.getItem('shifty_selected_character') || 'cat_default',
     totalAccumulatedScore: parseInt(localStorage.getItem('shifty_total_score') || '0', 10),
@@ -107,12 +123,83 @@ export const useGameStore = create<GameState>((set, get) => ({
         set({ selectedCharacterId: id });
     },
 
+    setGameMode: (mode) => set({ gameMode: mode }),
+
+    generateMindshiftItem: (phase) => {
+        const config = DIFFICULTY_CONFIG[get().difficulty];
+        const colors = config.colors; 
+        
+        let newItem: WasteItem;
+        const id = Math.random().toString(36).substr(2, 9);
+        
+        if (phase === 1) {
+            const emotions = [
+                { name: 'FELIZ', emoji: '😀' },
+                { name: 'TRISTE', emoji: '😢' },
+                { name: 'ENOJADO', emoji: '😡' },
+                { name: 'CON MIEDO', emoji: '😨' },
+                { name: 'SORPRESA', emoji: '😲' }
+            ];
+            const targetEmotion = emotions[Math.floor(Math.random() * emotions.length)];
+            const chosenLaneIdx = Math.floor(Math.random() * colors.length);
+            
+            newItem = {
+                id,
+                name: 'EMOCIÓN',
+                type: 'mindshift',
+                correctLaneColor: colors[chosenLaneIdx],
+                emoji: targetEmotion.emoji,
+                mindshiftEmotion: targetEmotion.name
+            };
+        } else if (phase === 2) {
+            const chosenLaneIdx = Math.floor(Math.random() * colors.length);
+            const targetColor = colors[chosenLaneIdx];
+            
+            let distractorIdx = Math.floor(Math.random() * colors.length);
+            while (distractorIdx === chosenLaneIdx) {
+                distractorIdx = Math.floor(Math.random() * colors.length);
+            }
+            
+            const colorNames: Record<string, string> = {
+                green: 'VERDE', blue: 'AZUL', yellow: 'AMARILLO', red: 'ROJO'
+            };
+            
+            newItem = {
+                id,
+                name: `VE AL CARRIL ${colorNames[targetColor]}`,
+                type: 'mindshift',
+                correctLaneColor: targetColor,
+                emoji: '🎯',
+                mindshiftDistractorLane: colors[distractorIdx]
+            };
+        } else {
+            const isPositive = Math.random() > 0.5;
+            const posEmojis = ['🥰', '😁', '🤩', '😇'];
+            const negEmojis = ['🤬', '😭', '🤢', '👺'];
+            const emoji = isPositive ? posEmojis[Math.floor(Math.random() * posEmojis.length)] : negEmojis[Math.floor(Math.random() * negEmojis.length)];
+            
+            const correctIdx = isPositive ? 0 : 3;
+            
+            newItem = {
+                id,
+                name: 'CLASIFICA: POSITIVIDAD',
+                type: 'mindshift',
+                correctLaneColor: colors[correctIdx], 
+                emoji,
+                mindshiftEmotion: isPositive ? 'POSITIVO' : 'NEGATIVO'
+            };
+        }
+        return newItem;
+    },
+
     startGame: () => {
-        const { difficulty } = get();
+        const { difficulty, gameMode, generateMindshiftItem } = get();
         const config = DIFFICULTY_CONFIG[difficulty];
         const startLane = Math.floor(config.laneCount / 2);
 
-        const randomWaste = WASTE_ITEMS[Math.floor(Math.random() * WASTE_ITEMS.length)];
+        const initialItem = gameMode === 'mindshift' 
+            ? generateMindshiftItem(1) 
+            : WASTE_ITEMS[Math.floor(Math.random() * WASTE_ITEMS.length)];
 
         set({
             gameStatus: 'playing',
@@ -120,8 +207,12 @@ export const useGameStore = create<GameState>((set, get) => ({
             lives: INITIAL_LIVES,
             speedMultiplier: INITIAL_SPEED,
             currentLane: startLane,
-            currentWasteItem: randomWaste,
+            currentWasteItem: initialItem,
             isPaused: false,
+            mindshiftPhase: 1,
+            mindshiftPlaysInPhase: 0,
+            mindshiftStats: [],
+            mindshiftItemSpawnTime: Date.now()
         });
     },
 
@@ -165,10 +256,68 @@ export const useGameStore = create<GameState>((set, get) => ({
         }
     },
 
-    processCollision: (isCorrect) => {
-        const { lives, score, speedMultiplier, gameStatus, totalAccumulatedScore } = get();
+    processCollision: (isCorrect, choseDistractor = false) => {
+        const state = get();
+        const { lives, score, speedMultiplier, gameStatus, totalAccumulatedScore, gameMode, mindshiftPhase, mindshiftPlaysInPhase, mindshiftStats, mindshiftItemSpawnTime, generateMindshiftItem, currentWasteItem } = state;
 
         if (gameStatus === 'tutorial') return;
+
+        if (gameMode === 'mindshift') {
+            const reactionTime = Date.now() - mindshiftItemSpawnTime;
+            const emotion = currentWasteItem?.mindshiftEmotion || 'None';
+            
+            const newStats = [...mindshiftStats, {
+                phase: mindshiftPhase,
+                isCorrect,
+                reactionTime,
+                choseDistractor,
+                emotion
+            }];
+            
+            const PLAYS_PER_PHASE = 10;
+            const newPlays = mindshiftPlaysInPhase + 1;
+            
+            const points = 10;
+            const newScore = isCorrect ? score + points : score;
+            const newTotalScore = isCorrect ? totalAccumulatedScore + points : totalAccumulatedScore;
+            
+            if (isCorrect) {
+                 localStorage.setItem('shifty_total_score', newTotalScore.toString());
+            }
+
+            let newPhase = mindshiftPhase;
+            let ended = false;
+            
+            if (newPlays >= PLAYS_PER_PHASE) {
+                if (mindshiftPhase < 3) {
+                    newPhase = mindshiftPhase + 1;
+                } else {
+                    ended = true;
+                }
+            }
+            
+            if (ended) {
+                set({
+                    gameStatus: 'gameover',
+                    mindshiftStats: newStats,
+                    score: newScore,
+                    totalAccumulatedScore: newTotalScore
+                });
+            } else {
+                const nextItem = generateMindshiftItem(newPhase);
+                set({
+                    mindshiftPhase: newPhase,
+                    mindshiftPlaysInPhase: newPlays >= PLAYS_PER_PHASE ? 0 : newPlays,
+                    mindshiftStats: newStats,
+                    currentWasteItem: nextItem,
+                    mindshiftItemSpawnTime: Date.now(),
+                    speedMultiplier: Math.min(2.0, speedMultiplier + SPEED_INCREMENT * 0.5),
+                    score: newScore,
+                    totalAccumulatedScore: newTotalScore
+                });
+            }
+            return;
+        }
 
         if (isCorrect) {
             const points = 10; // 10 points per correct item

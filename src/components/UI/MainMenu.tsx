@@ -28,12 +28,7 @@ export const MainMenu: React.FC = () => {
                         whileHover={{ scale: 1.1 }}
                         whileTap={{ scale: 0.95 }}
                         onClick={() => {
-                            const { hasSeenTutorial, startTutorial, startGame } = useGameStore.getState();
-                            if (!hasSeenTutorial) {
-                                startTutorial();
-                            } else {
-                                startGame();
-                            }
+                            setGameStatus('categorySelect');
                         }}
                         className="w-64 py-4 rounded-full bg-gradient-to-r from-green-400 to-green-600 text-white text-2xl font-black shadow-[0_0_20px_rgba(34,197,94,0.6)] border-4 border-white/20"
                     >

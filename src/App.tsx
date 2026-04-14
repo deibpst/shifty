@@ -1,9 +1,10 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { GameScene } from './components/GameScene';
 import { HUD } from './components/UI/HUD';
 import { InstructionsModal } from './components/UI/InstructionsModal';
 import { MainMenu } from './components/UI/MainMenu';
 import { Customizer } from './components/UI/Customizer';
+import { CategorySelect } from './components/UI/CategorySelect';
 import { useGameStore } from './store';
 
 import { TutorialOverlay } from './components/UI/TutorialOverlay';
@@ -15,12 +16,35 @@ function App() {
     const setGameStatus = useGameStore((state) => state.setGameStatus);
     const gameStatus = useGameStore((state) => state.gameStatus);
     const togglePause = useGameStore((state) => state.togglePause);
+    const gameMode = useGameStore((state) => state.gameMode);
+
+    // PSI Code Support
+    const [typedCode, setTypedCode] = useState('');
+    const [showPSIReport, setShowPSIReport] = useState(false);
 
     // Initial mount check
     useEffect(() => {
         // Ensure we start at menu
         setGameStatus('menu');
+        setShowPSIReport(false);
     }, [setGameStatus]);
+
+    useEffect(() => {
+        const handleGlobalKeyDown = (e: KeyboardEvent) => {
+            if (gameStatus === 'gameover' && gameMode === 'mindshift') {
+                const key = e.key.toLowerCase();
+                setTypedCode(prev => {
+                    const next = (prev + key).slice(-7); // 'psi2025' is 7 chars
+                    if (next === 'psi2025') {
+                        setShowPSIReport(true);
+                    }
+                    return next;
+                });
+            }
+        };
+        window.addEventListener('keydown', handleGlobalKeyDown);
+        return () => window.removeEventListener('keydown', handleGlobalKeyDown);
+    }, [gameStatus, gameMode]);
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
@@ -73,6 +97,9 @@ function App() {
             {/* 1. MAIN MENU */}
             {gameStatus === 'menu' && <MainMenu />}
 
+            {/* 1.5 CATEGORY SELECT */}
+            {gameStatus === 'categorySelect' && <CategorySelect />}
+
             {/* 2. CUSTOMIZER */}
             {gameStatus === 'customizing' && <Customizer />}
 
@@ -108,6 +135,36 @@ function App() {
                             className="bg-yellow-400 hover:bg-yellow-300 text-yellow-900 font-black py-4 px-10 rounded-full text-xl shadow-lg transition-transform hover:scale-105"
                         >
                             REINTENTAR
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            {/* 5. PSI REPORT MODAL (Secret) */}
+            {showPSIReport && (
+                <div className="absolute inset-0 z-[100] flex items-center justify-center bg-slate-900/95 p-8 overflow-auto">
+                    <div className="bg-white rounded-3xl p-8 max-w-4xl w-full text-slate-800">
+                        <h2 className="text-4xl font-black mb-6">Reporte Psicológico: MindShift</h2>
+                        <div className="space-y-4 max-h-[60vh] overflow-y-auto">
+                            {useGameStore.getState().mindshiftStats.map((stat, idx) => (
+                                <div key={idx} className={`p-4 rounded-xl border-l-8 ${stat.isCorrect ? 'border-green-500 bg-green-50' : 'border-red-500 bg-red-50'}`}>
+                                    <div className="flex justify-between items-center font-bold">
+                                        <span>Fase {stat.phase}</span>
+                                        <span>{stat.isCorrect ? 'ACIERTO' : 'ERROR'}</span>
+                                    </div>
+                                    <div className="text-sm mt-2 grid grid-cols-2 gap-4">
+                                        <div><strong>Tiempo de Reacción:</strong> {stat.reactionTime}ms</div>
+                                        <div><strong>Estímulo:</strong> {stat.emotion}</div>
+                                        {stat.phase === 2 && <div><strong>¿Cayó en trampa visual?:</strong> {stat.choseDistractor ? 'Sí' : 'No'}</div>}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                        <button 
+                            onClick={() => setShowPSIReport(false)} 
+                            className="mt-8 bg-blue-600 hover:bg-blue-700 text-white font-black py-4 px-10 rounded-full transition-transform hover:scale-105"
+                        >
+                            Cerrar Reporte
                         </button>
                     </div>
                 </div>
