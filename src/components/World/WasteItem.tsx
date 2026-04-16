@@ -1,6 +1,7 @@
 import React, { useRef, useLayoutEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { Group, Mesh } from 'three';
+import { Text } from '@react-three/drei';
 import { LaneColor } from '../../types';
 import { Model as ObstacleModel } from './Skull';
 
@@ -11,6 +12,8 @@ export interface WasteObjectData {
     type: 'bin' | 'obstacle';
     color?: LaneColor;
     active: boolean;
+    mindshiftLabelText?: string;
+    mindshiftDistractor?: boolean;
 }
 
 interface WasteItemProps {
@@ -32,9 +35,20 @@ export const WasteItem: React.FC<WasteItemProps> = ({ data }) => {
     // BUT `data.z` is being updated by the Manager's loop.
     // So this component just needs to sync its transform with `data`.
 
-    useFrame(() => {
+    const distractorMatRef = useRef<any>(null);
+
+    useFrame((state) => {
         if (groupRef.current && data.active) {
             groupRef.current.position.z = data.z;
+        }
+
+        if (data.mindshiftDistractor && distractorMatRef.current) {
+            const time = state.clock.elapsedTime;
+            distractorMatRef.current.emissiveIntensity = 1 + Math.sin(time * 15) * 1.5;
+            if (groupRef.current) {
+                const scale = 1 + Math.abs(Math.sin(time * 10)) * 0.15;
+                groupRef.current.scale.set(scale, scale, scale);
+            }
         }
     });
 
@@ -69,9 +83,10 @@ export const WasteItem: React.FC<WasteItemProps> = ({ data }) => {
                 <mesh ref={meshRef} frustumCulled={false}>
                     <boxGeometry args={[2, 2, 2]} />
                     <meshStandardMaterial
+                        ref={distractorMatRef}
                         color={colorHex}
                         emissive={colorHex}
-                        emissiveIntensity={0.6}
+                        emissiveIntensity={data.mindshiftDistractor ? 1.5 : 0.6}
                     />
                     {/* Inner Mouth */}
                     <mesh position={[0, 0.5, 1.01]}>
@@ -80,8 +95,24 @@ export const WasteItem: React.FC<WasteItemProps> = ({ data }) => {
                     </mesh>
                     {/* Label Area */}
                     <mesh position={[0, -0.2, 1.01]}>
-                        <planeGeometry args={[1.0, 1.0]} />
+                        <planeGeometry args={[1.9, 1.0]} />
                         <meshBasicMaterial color="white" />
+                        {data.mindshiftLabelText && (
+                            <Text
+                                position={[0, 0, 0.01]}
+                                fontSize={0.19}
+                                color="black"
+                                anchorX="center"
+                                anchorY="middle"
+                                maxWidth={1.7}
+                                textAlign="center"
+                                outlineWidth={0.005}
+                                outlineColor="#ffffff"
+                                overflowWrap="break-word"
+                            >
+                                {data.mindshiftLabelText}
+                            </Text>
+                        )}
                     </mesh>
                 </mesh>
             )}

@@ -3,13 +3,106 @@ import { useGameStore } from '../../store';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export const HUD: React.FC = () => {
-    const { score, lives, currentWasteItem } = useGameStore();
+    const { score, lives, currentWasteItem, gameMode, mindshiftPhase } = useGameStore();
 
     if (!currentWasteItem) return null;
 
     const laneColor = currentWasteItem.correctLaneColor;
     const bgColor = getPastelColor(laneColor);
     const borderColor = getBorderColor(laneColor);
+    const textColor = getTextColor(laneColor);
+
+    // --- Build MindShift card content based on phase ---
+    const renderMindshiftCard = () => {
+        if (mindshiftPhase === 1) {
+            // Phase 1: Show the emotion the player must classify
+            return (
+                <>
+                    <div className="text-5xl filter drop-shadow-sm leading-none">
+                        {currentWasteItem.emoji}
+                    </div>
+                    <div className="flex flex-col gap-0.5">
+                        <div className="text-[10px] font-bold uppercase tracking-widest opacity-75" style={{ color: textColor }}>
+                            FASE 1 · IDENTIFICA LA EMOCIÓN
+                        </div>
+                        <div className="text-2xl font-black leading-none" style={{ color: textColor }}>
+                            {currentWasteItem.name}
+                        </div>
+                        <div className="text-[10px] font-semibold opacity-60" style={{ color: textColor }}>
+                            ¿En qué carril va esta emoción?
+                        </div>
+                    </div>
+                </>
+            );
+        }
+
+        if (mindshiftPhase === 2) {
+            // Phase 2: Go to the correct color lane (with distractor)
+            const colorNames: Record<string, string> = {
+                green: 'VERDE', blue: 'AZUL', yellow: 'AMARILLO', red: 'ROJO'
+            };
+            return (
+                <>
+                    <div className="text-5xl filter drop-shadow-sm leading-none">
+                        {currentWasteItem.emoji}
+                    </div>
+                    <div className="flex flex-col gap-0.5">
+                        <div className="text-[10px] font-bold uppercase tracking-widest opacity-75" style={{ color: textColor }}>
+                            FASE 2 · CONTROL DE IMPULSOS
+                        </div>
+                        <div className="text-2xl font-black leading-none" style={{ color: textColor }}>
+                            CARRIL {colorNames[laneColor] || laneColor}
+                        </div>
+                        <div className="text-[10px] font-semibold opacity-60" style={{ color: textColor }}>
+                            ⚠️ Cuidado con el carril trampa
+                        </div>
+                    </div>
+                </>
+            );
+        }
+
+        if (mindshiftPhase === 3) {
+            // Phase 3: Classify as positive or negative
+            const isPositive = currentWasteItem.name === 'POSITIVO';
+            return (
+                <>
+                    <div className="text-5xl filter drop-shadow-sm leading-none">
+                        {currentWasteItem.emoji}
+                    </div>
+                    <div className="flex flex-col gap-0.5">
+                        <div className="text-[10px] font-bold uppercase tracking-widest opacity-75" style={{ color: textColor }}>
+                            FASE 3 · CLASIFICA LA EMOCIÓN
+                        </div>
+                        <div className="text-2xl font-black leading-none" style={{ color: textColor }}>
+                            {isPositive ? '😊 POSITIVO' : '😡 NEGATIVO'}
+                        </div>
+                        <div className="text-[10px] font-semibold opacity-60" style={{ color: textColor }}>
+                            {isPositive ? 'Ve al carril verde (izquierda)' : 'Ve al carril rojo (derecha)'}
+                        </div>
+                    </div>
+                </>
+            );
+        }
+
+        return null;
+    };
+
+    // --- Garbage mode card content ---
+    const renderGarbageCard = () => (
+        <>
+            <div className="text-5xl filter drop-shadow-sm">
+                {currentWasteItem.emoji}
+            </div>
+            <div className="flex flex-col">
+                <div className="text-xs font-bold text-slate-800 uppercase tracking-widest opacity-70">
+                    CLASIFICA:
+                </div>
+                <div className="text-2xl font-black text-slate-900 drop-shadow-sm leading-none">
+                    {currentWasteItem.name}
+                </div>
+            </div>
+        </>
+    );
 
     return (
         <div className="absolute inset-0 pointer-events-none p-4 flex flex-col justify-between">
@@ -19,32 +112,46 @@ export const HUD: React.FC = () => {
                 <AnimatePresence mode="wait">
                     <motion.div
                         key={currentWasteItem.id}
-                        initial={{ y: -50, opacity: 0 }}
-                        animate={{ y: 0, opacity: 1 }}
-                        exit={{ y: -50, opacity: 0 }}
+                        initial={{ y: -50, opacity: 0, scale: 0.9 }}
+                        animate={{ y: 0, opacity: 1, scale: 1 }}
+                        exit={{ y: -50, opacity: 0, scale: 0.9 }}
                         transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                        className="px-8 py-4 rounded-2xl shadow-lg flex items-center gap-6 transition-colors duration-300"
+                        className="px-8 py-4 rounded-2xl shadow-xl flex items-center gap-5 transition-colors duration-300"
                         style={{
                             backgroundColor: bgColor,
-                            border: `4px solid ${borderColor}`
+                            border: `4px solid ${borderColor}`,
+                            boxShadow: `0 8px 32px ${borderColor}88`
                         }}
                     >
-                        {/* Icon - Emoji */}
-                        <div className="text-5xl filter drop-shadow-sm">
-                            {currentWasteItem.emoji}
-                        </div>
-
-                        <div className="flex flex-col">
-                            <div className="text-xs font-bold text-slate-800 uppercase tracking-widest opacity-70">
-                                CLASIFICA:
-                            </div>
-                            <div className="text-2xl font-black text-slate-900 drop-shadow-sm leading-none">
-                                {currentWasteItem.name}
-                            </div>
-                        </div>
+                        {gameMode === 'mindshift'
+                            ? renderMindshiftCard()
+                            : renderGarbageCard()
+                        }
                     </motion.div>
                 </AnimatePresence>
             </div>
+
+            {/* MindShift Phase Indicator */}
+            {gameMode === 'mindshift' && (
+                <div className="absolute top-4 right-4 z-10 pointer-events-none">
+                    <div className="flex gap-2">
+                        {[1, 2, 3].map(p => (
+                            <div
+                                key={p}
+                                className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-black shadow-md transition-all duration-300"
+                                style={{
+                                    backgroundColor: p === mindshiftPhase ? '#7c3aed' : 'rgba(255,255,255,0.25)',
+                                    color: p === mindshiftPhase ? '#fff' : 'rgba(255,255,255,0.6)',
+                                    border: p === mindshiftPhase ? '2px solid #a78bfa' : '2px solid rgba(255,255,255,0.2)',
+                                    transform: p === mindshiftPhase ? 'scale(1.2)' : 'scale(1)'
+                                }}
+                            >
+                                {p}
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
 
             {/* Top Bar: Score & Lives (Sides) */}
             <div className="flex justify-between items-start w-full">
@@ -83,22 +190,31 @@ export const HUD: React.FC = () => {
     );
 };
 
+// ---- Lane color helpers ----
 function getPastelColor(color: string) {
     switch (color) {
-        case 'green': return '#22c55e';
-        case 'blue': return '#3b82f6';
-        case 'yellow': return '#eab308';
-        case 'red': return '#ef4444';
-        default: return '#f1f5f9';
+        case 'green':  return 'rgba(34, 197, 94, 0.92)';
+        case 'blue':   return 'rgba(59, 130, 246, 0.92)';
+        case 'yellow': return 'rgba(234, 179, 8, 0.95)';
+        case 'red':    return 'rgba(239, 68, 68, 0.92)';
+        default:       return 'rgba(241, 245, 249, 0.95)';
     }
 }
 
 function getBorderColor(color: string) {
     switch (color) {
-        case 'green': return '#86efac';
-        case 'blue': return '#93c5fd';
+        case 'green':  return '#86efac';
+        case 'blue':   return '#93c5fd';
         case 'yellow': return '#fde047';
-        case 'red': return '#fca5a5';
-        default: return '#cbd5e1';
+        case 'red':    return '#fca5a5';
+        default:       return '#cbd5e1';
+    }
+}
+
+function getTextColor(color: string) {
+    // Yellow is light, needs dark text; others are dark enough for white
+    switch (color) {
+        case 'yellow': return '#1e1b4b';
+        default:       return '#ffffff';
     }
 }

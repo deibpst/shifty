@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { useGameStore } from '../../store';
-import { DIFFICULTY_CONFIG } from '../../types';
+import { DIFFICULTY_CONFIG, EMOTION_LANE_MAP } from '../../types';
 import { WasteItem, WasteObjectData } from './WasteItem';
 
 const LANE_WIDTH = 3.0; // Must match Track.tsx
@@ -24,6 +24,16 @@ export const WasteManager: React.FC = () => {
     const objectsDataRef = useRef<WasteObjectData[]>([]);
     const [renderableObjects, setRenderableObjects] = useState<WasteObjectData[]>([]);
     const lastSpawnTime = useRef(0);
+    const lastSpawnedMindshiftItemId = useRef('');
+
+    // Bug 3 Fix: Limpiar carriles al cambiar de modo (cuando inicia el playing)
+    React.useEffect(() => {
+        if (gameStatus === 'playing') {
+            objectsDataRef.current = [];
+            setRenderableObjects([]);
+            lastSpawnedMindshiftItemId.current = '';
+        }
+    }, [gameStatus]);
 
     useFrame((state, delta) => {
         if (gameStatus !== 'playing' && gameStatus !== 'tutorial') return;
@@ -45,30 +55,70 @@ export const WasteManager: React.FC = () => {
         let needsUpdate = false;
 
         // --- 1. SPAWNING ---
-        if (time - lastSpawnTime.current > SPAWN_INTERVAL / speedMultiplier) {
-            lastSpawnTime.current = time;
+        if (useGameStore.getState().gameMode === 'mindshift') {
+            if (currentWasteItem && lastSpawnedMindshiftItemId.current !== currentWasteItem.id) {
+                lastSpawnedMindshiftItemId.current = currentWasteItem.id;
+                
+                // MINDSHIFT SPAWNING LOGIC: Spawn a row of bins
+                const phase = useGameStore.getState().mindshiftPhase;
+                const phaseColors = config.colors;
 
-            const lane = Math.floor(Math.random() * config.laneCount);
-            // Determine what "Bin" is in that lane
-            // The lane colors are defined in config.colors[lane]
-            const laneColor = config.colors[lane];
+                phaseColors.forEach((laneColor, laneIdx) => {
+                    let text = '';
+                    let isDistractor = false;
 
-            // Randomly spawn an obstacle or a Bin
-            // 30% Obstacle, 70% Bin
-            const isObstacle = Math.random() > 0.7;
+                    if (phase === 1) {
+                        // Each bin shows the emotion TIED to its lane color
+                        const emo = EMOTION_LANE_MAP[laneColor];
+                        text = emo ? `${emo.emoji} ${emo.name}` : '?';
+                    } else if (phase === 2) {
+                        if (laneColor === currentWasteItem.mindshiftDistractorLane) {
+                            isDistractor = true;
+                        }
+                        // Show the emotion of this lane so player knows what each lane means
+                        const emo = EMOTION_LANE_MAP[laneColor];
+                        text = emo ? emo.emoji : 'ENTRA';
+                    } else if (phase === 3) {
+                        // First lane = POSITIVO, last lane = NEGATIVO, middle lanes empty
+                        if (laneIdx === 0) text = '😊 POSITIVO';
+                        else if (laneIdx === phaseColors.length - 1) text = '😡 NEGATIVO';
+                        else text = '';
+                    }
 
-            const newObj: WasteObjectData = {
-                id: Math.random().toString(36).substr(2, 9),
-                laneIndex: lane,
-                z: SPAWN_Z,
-                type: isObstacle ? 'obstacle' : 'bin',
-                // If it's a bin, it MUST have the color of that lane
-                color: isObstacle ? undefined : laneColor,
-                active: true
-            };
+                    objectsDataRef.current.push({
+                        id: Math.random().toString(36).substr(2, 9),
+                        laneIndex: laneIdx,
+                        z: SPAWN_Z,
+                        type: 'bin',
+                        color: laneColor,
+                        active: true,
+                        mindshiftLabelText: text,
+                        mindshiftDistractor: isDistractor
+                    });
+                });
+                needsUpdate = true;
+            }
+        } else {
+            if (time - lastSpawnTime.current > SPAWN_INTERVAL / speedMultiplier) {
+                lastSpawnTime.current = time;
 
-            objectsDataRef.current.push(newObj);
-            needsUpdate = true;
+                // ORIGINAL GARBAGE SPAWNING LOGIC
+                const lane = Math.floor(Math.random() * config.laneCount);
+                const laneColor = config.colors[lane];
+                const isObstacle = Math.random() > 0.7;
+
+                const newObj: WasteObjectData = {
+                    id: Math.random().toString(36).substr(2, 9),
+                    laneIndex: lane,
+                    z: SPAWN_Z,
+                    type: isObstacle ? 'obstacle' : 'bin',
+                    color: isObstacle ? undefined : laneColor,
+                    active: true
+                };
+
+                objectsDataRef.current.push(newObj);
+                needsUpdate = true;
+            }
         }
 
         // --- 2. MOVEMENT ---
@@ -83,17 +133,26 @@ export const WasteManager: React.FC = () => {
                     obj.active = false;
                     needsUpdate = true;
 
-                    if (obj.type === 'obstacle') {
-                        // Hit Obstacle -> BAD
-                        processCollision(false);
+                    if (useGameStore.getState().gameMode === 'mindshift') {
+                        // All phases: correct = the bin whose color matches correctLaneColor
+                        const choseDistractor = !!obj.mindshiftDistractor;
+                        const isMatch = currentWasteItem
+                            ? obj.color === currentWasteItem.correctLaneColor
+                            : false;
+                        processCollision(isMatch, choseDistractor);
+                         
+                         // Clear the rest of the row to avoid double collisions
+                         objectsDataRef.current.forEach(o => {
+                             if(Math.abs(o.z - PLAYER_Z) < 3) o.active = false;
+                         });
                     } else {
-                        // Hit Bin -> Check strictly if the Bin Color matches the Target Item's Correct Color
-                        if (currentWasteItem && obj.color) {
-                            const isMatch = obj.color === currentWasteItem.correctLaneColor;
-                            // Logic: "Si el color del material del objeto DEBE coincidir con el color del contenedor destino"
-                            // Player has TargetItem (e.g. Red Battery). Player hits Red Bin. 
-                            // obj.color (Bin Color) === currentWasteItem.correctLaneColor (Red). MATCH!
-                            processCollision(isMatch);
+                        if (obj.type === 'obstacle') {
+                            processCollision(false);
+                        } else {
+                            if (currentWasteItem && obj.color) {
+                                const isMatch = obj.color === currentWasteItem.correctLaneColor;
+                                processCollision(isMatch);
+                            }
                         }
                     }
                 }
