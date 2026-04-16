@@ -19,6 +19,24 @@ export const CategorySelect: React.FC = () => {
         startGame(); // Directo a MindShift, podemos hacer un pequeño intro luego si es necesario
     };
 
+    React.useEffect(() => {
+        const handleSerial = (e: Event) => {
+            const customEvent = e as CustomEvent<string>;
+            const button = customEvent.detail;
+            
+            if (button === 'green') {
+                handleGarbage();
+            } else if (button === 'blue' || button === 'purple') {
+                handleMindShift();
+            } else if (button === 'red' || button === 'orange') {
+                setGameStatus('menu');
+            }
+        };
+
+        window.addEventListener('serial:categorySelect', handleSerial);
+        return () => window.removeEventListener('serial:categorySelect', handleSerial);
+    }, [handleGarbage, handleMindShift, setGameStatus]);
+
     return (
         <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-md">
             <motion.div
@@ -49,18 +67,18 @@ export const CategorySelect: React.FC = () => {
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         onClick={handleMindShift}
-                        className="flex-1 p-8 rounded-3xl bg-gradient-to-br from-purple-400/90 to-indigo-600/90 text-white shadow-[0_0_30px_rgba(168,85,247,0.4)] border-4 border-white/20 backdrop-blur-sm flex flex-col items-center gap-4 group transition-all"
+                        className="flex-1 p-8 rounded-3xl bg-gradient-to-br from-blue-400/90 to-blue-600/90 text-white shadow-[0_0_30px_rgba(59,130,246,0.4)] border-4 border-white/20 backdrop-blur-sm flex flex-col items-center gap-4 group transition-all"
                     >
                         <div className="text-8xl group-hover:scale-110 transition-transform">🧠</div>
                         <h3 className="text-3xl font-black uppercase tracking-wide">MindShift</h3>
-                        <p className="text-purple-100 font-medium">Entrena tu mente, emociones y control de impulsos.</p>
+                        <p className="text-blue-100 font-medium">Entrena tu mente, emociones y control de impulsos.</p>
                     </motion.button>
                 </div>
 
                 <div className="mt-12">
                     <button
                         onClick={() => setGameStatus('menu')}
-                        className="px-8 py-3 rounded-full bg-white/20 text-white font-bold hover:bg-white/30 transition-colors border-2 border-white/40"
+                        className="px-8 py-3 rounded-full bg-red-500 hover:bg-red-600 text-white font-bold transition-colors border-2 border-red-400 shadow-[0_3px_0_#991b1b] active:translate-y-1 active:shadow-none"
                     >
                         VOLVER AL MENÚ
                     </button>

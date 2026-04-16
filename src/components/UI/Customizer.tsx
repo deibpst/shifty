@@ -47,8 +47,33 @@ export const Customizer: React.FC = () => {
     const nextPage = (currentPage + 1) % totalPages;
 
     const handleNext = () => {
-        setCurrentPage(nextPage);
+        setCurrentPage(prev => (prev + 1) % totalPages);
     };
+
+    // Listen to physical controller buttons via CustomEvent
+    React.useEffect(() => {
+        const handleSerial = (e: Event) => {
+            const customEvent = e as CustomEvent<string>;
+            const button = customEvent.detail;
+            
+            if (button === 'red' || button === 'orange') {
+                setGameStatus('menu');
+            } else if (button === 'yellow') {
+                setCurrentPage(prev => (prev + 1) % totalPages);
+            } else if (button === 'green' && visibleCharacters[0]) {
+                if (totalScore >= visibleCharacters[0].requiredScore) {
+                    setSelectedCharacter(visibleCharacters[0].id);
+                }
+            } else if ((button === 'blue' || button === 'purple') && visibleCharacters[1]) {
+                if (totalScore >= visibleCharacters[1].requiredScore) {
+                    setSelectedCharacter(visibleCharacters[1].id);
+                }
+            }
+        };
+
+        window.addEventListener('serial:customizer', handleSerial);
+        return () => window.removeEventListener('serial:customizer', handleSerial);
+    }, [totalPages, visibleCharacters, totalScore, setGameStatus, setSelectedCharacter]);
 
     return (
         <div className="absolute inset-0 z-50 flex items-center justify-center bg-slate-900/80 backdrop-blur-md p-4">
