@@ -10,6 +10,7 @@ import { useGameStore } from './store';
 import { TutorialOverlay } from './components/UI/TutorialOverlay';
 
 import { PauseMenu } from './components/UI/PauseMenu';
+import { AudioController } from './components/AudioController';
 
 function App() {
     const setLane = useGameStore((state) => state.setLane);
@@ -80,6 +81,9 @@ function App() {
 
     return (
         <div className="w-screen h-screen overflow-hidden relative select-none font-sans">
+            {/* AUDIO CONTROLLER (Invisible) */}
+            <AudioController />
+
             {/* 3D SCENE BACKGROUND */}
             <GameScene />
 
