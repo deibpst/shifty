@@ -1,53 +1,98 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useGameStore } from '../store';
 
 export const AudioController: React.FC = () => {
-    const audioRef = useRef<HTMLAudioElement | null>(null);
+    const gameAudioRef = useRef<HTMLAudioElement | null>(null);
+    const menuAudioRef = useRef<HTMLAudioElement | null>(null);
+    
+    // Estado para gestionar las Políticas de Autoplay
+    // El audio no arrancará en los navegadores hasta que el usuario interactúe al menos una vez (clic/tecla)
+    const [hasInteracted, setHasInteracted] = useState(false);
     
     const gameStatus = useGameStore((state) => state.gameStatus);
     const speedMultiplier = useGameStore((state) => state.speedMultiplier);
     const isPaused = useGameStore((state) => state.isPaused);
     const isMuted = useGameStore((state) => state.isMuted);
 
+    // Inicialización de pistas y listeners globales de interacción
     useEffect(() => {
-        // Initialize audio instance only once
-        if (!audioRef.current) {
-            const audio = new Audio('/Pista.mpeg');
-            audio.loop = true;
-            audioRef.current = audio;
+        if (!gameAudioRef.current) {
+            gameAudioRef.current = new Audio('/Pista.mpeg');
+            gameAudioRef.current.loop = true;
+        }
+        if (!menuAudioRef.current) {
+            menuAudioRef.current = new Audio('/menu.mpeg');
+            menuAudioRef.current.loop = true;
         }
 
-        const audio = audioRef.current;
-        const isPlayingCondition = (gameStatus === 'playing' || gameStatus === 'tutorial') && !isPaused && !isMuted;
+        const handleInteraction = () => {
+            if (!hasInteracted) {
+                setHasInteracted(true);
+            }
+        };
 
-        if (isPlayingCondition) {
-            // Browsers require user interaction before playing audio. 
-            // Since gameStatus changes on click (e.g. "Start Game"), it is generally safe.
-            audio.play().catch(err => {
-                console.warn('Autoplay prevented by browser. Audio needs user interaction first.', err);
-            });
+        // Detectar cualquier interacción válida para desbloquear el audio
+        window.addEventListener('pointerdown', handleInteraction);
+        window.addEventListener('keydown', handleInteraction);
+
+        return () => {
+            window.removeEventListener('pointerdown', handleInteraction);
+            window.removeEventListener('keydown', handleInteraction);
+        };
+    }, [hasInteracted]);
+
+    // Lógica cruzada de Play/Pause dependiendo del gameState (gameStatus)
+    useEffect(() => {
+        const gameAudio = gameAudioRef.current;
+        const menuAudio = menuAudioRef.current;
+
+        if (!gameAudio || !menuAudio) return;
+
+        // Si el usuario silenció el juego desde la UI, paramos ambas pistas inmediatamente
+        if (isMuted) {
+            gameAudio.pause();
+            menuAudio.pause();
+            return;
+        }
+
+        // Definimos cuándo es gameplay activo vs cuándo es menú/tienda/gameover
+        const isGameplay = gameStatus === 'playing' || gameStatus === 'tutorial';
+        
+        // El audio in-game suena si estamos jugando Y NO está en pausa
+        const isGameAudioActive = isGameplay && !isPaused;
+        // El audio del menú suena siempre que NO estemos en medio de la partida (ej. menú, perdidas)
+        // Ojo: Si quieres que suene el menú durante la pausa añade: || isPaused
+        const isMenuAudioActive = !isGameplay; 
+
+        // IMPORTANTE: Respetar Autoplay Policy. No llamamos .play() sin interacción previa
+        if (!hasInteracted) return;
+
+        // Cross-playback: Apagamos una, encendemos otra
+        if (isGameAudioActive) {
+            gameAudio.play().catch(err => console.warn('Game audio autoplay error', err));
         } else {
-            audio.pause();
+            gameAudio.pause();
+            // Opcional: ¿Quieres reiniciar la pista de juego al salir? Comenta la línea siguiente si quieres que continúe donde se quedó
+            gameAudio.currentTime = 0; 
         }
-    }, [gameStatus, isPaused, isMuted]);
 
+        if (isMenuAudioActive) {
+            menuAudio.play().catch(err => console.warn('Menu audio autoplay error', err));
+        } else {
+            menuAudio.pause();
+        }
+    }, [gameStatus, isPaused, isMuted, hasInteracted]);
+
+    // Aceleración dinámica SOLO para la pista principal del juego
     useEffect(() => {
-        // Sync playback rate with speedMultiplier
-        if (audioRef.current) {
-            // soften the acceleration:
-            // speedMultiplier starts at 0.6.
-            // For every 0.1 increase in game speed, audio will only increase by 0.04 (multiplier 0.4)
-            // Example:
-            // game: 0.6 -> audio: 1.0x
-            // game: 1.0 -> audio: 1.16x
-            // game: 2.0 (max) -> audio: 1.56x
+        if (gameAudioRef.current) {
             const baseAudioSpeed = 1.0;
             const dampeningFactor = 0.4; 
             const calculatedRate = baseAudioSpeed + ((speedMultiplier - 0.6) * dampeningFactor);
             
-            audioRef.current.playbackRate = Math.max(0.5, Math.min(2.0, calculatedRate));
+            gameAudioRef.current.playbackRate = Math.max(0.5, Math.min(2.0, calculatedRate));
         }
     }, [speedMultiplier]);
 
-    return null; // Invisible component
+    return null; // Componente invisible (Global Audio Manager)
 };
