@@ -33,13 +33,14 @@ function handleSerialMessage(line: string) {
         const toggleMute = state.toggleMute;
         const setGameStatus = state.setGameStatus;
         const gameStatus = state.gameStatus;
+        const startGame = state.startGame;
 
         // Debounce / Throttle preventer for menus
         // Prevents holding a button from instantly clicking through multiple nested menus.
-        const isMenuState = gameStatus === 'menu' || gameStatus === 'categorySelect' || gameStatus === 'customizing' || state.isPaused;
+        const isMenuState = gameStatus === 'menu' || gameStatus === 'categorySelect' || gameStatus === 'customizing' || gameStatus === 'gameover' || state.isPaused;
         if (isMenuState) {
             const now = Date.now();
-            if (now - lastMenuActionTime < 400) {
+            if (now - lastMenuActionTime < 150) {
                 return; // Ignore rapid fires in menus
             }
             lastMenuActionTime = now;
@@ -61,6 +62,20 @@ function handleSerialMessage(line: string) {
                 return;
             }
             // Ignore any lane changes or UI interactions while paused
+            return;
+        }
+
+        // Navigation in Game Over
+        if (gameStatus === 'gameover') {
+            if (button === 'red' || button === 'orange') {
+                setGameStatus('menu');
+                return;
+            }
+            if (button === 'green') {
+                startGame();
+                return;
+            }
+            // Ignore other buttons while in game over
             return;
         }
 

@@ -18,6 +18,7 @@ function App() {
     const gameStatus = useGameStore((state) => state.gameStatus);
     const togglePause = useGameStore((state) => state.togglePause);
     const gameMode = useGameStore((state) => state.gameMode);
+    const startGame = useGameStore((state) => state.startGame);
 
     // PSI Code Support
     const [typedCode, setTypedCode] = useState('');
@@ -126,7 +127,7 @@ function App() {
                     <div className="flex gap-4">
                         <button
                             onClick={() => setGameStatus('menu')}
-                            className="bg-white hover:bg-gray-100 text-slate-900 font-bold py-4 px-8 rounded-full text-xl shadow-lg transition-transform hover:scale-105 flex items-center gap-2"
+                            className="bg-red-500 hover:bg-red-600 text-white font-bold py-4 px-8 rounded-full text-xl shadow-[0_4px_0_#991b1b] active:translate-y-1 active:shadow-none transition-all flex items-center gap-2"
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-6 h-6">
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
@@ -135,8 +136,8 @@ function App() {
                         </button>
 
                         <button
-                            onClick={handleShowInstructions}
-                            className="bg-yellow-400 hover:bg-yellow-300 text-yellow-900 font-black py-4 px-10 rounded-full text-xl shadow-lg transition-transform hover:scale-105"
+                            onClick={startGame}
+                            className="bg-green-500 hover:bg-green-600 text-white font-black py-4 px-10 rounded-full text-xl shadow-[0_4px_0_#166534] active:translate-y-1 active:shadow-none transition-all"
                         >
                             REINTENTAR
                         </button>
