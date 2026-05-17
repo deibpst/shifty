@@ -21,7 +21,7 @@ export const HUD: React.FC = () => {
 
     return (
       <>
-        <div className="text-7xl filter drop-shadow-sm leading-none">
+        <div className="text-9xl filter drop-shadow-sm leading-none">
           {currentWasteItem.emoji}
         </div>
         <div className="flex flex-col gap-0.5">
@@ -32,7 +32,7 @@ export const HUD: React.FC = () => {
             ENGLISH · ENCUENTRA LA PALABRA
           </div>
           <div
-            className="text-2xl font-black leading-none"
+            className="text-4xl font-black leading-tight"
             style={{ color: textColor }}
           >
             ¿Cómo se llama en inglés?
@@ -63,7 +63,7 @@ export const HUD: React.FC = () => {
       // Phase 1: Show the emotion the player must classify
       return (
         <>
-          <div className="text-7xl filter drop-shadow-sm leading-none">
+          <div className="text-9xl filter drop-shadow-sm leading-none">
             {currentWasteItem.emoji}
           </div>
           <div className="flex flex-col gap-0.5">
@@ -74,7 +74,7 @@ export const HUD: React.FC = () => {
               FASE 1 · IDENTIFICA LA EMOCIÓN
             </div>
             <div
-              className="text-2xl font-black leading-none"
+              className="text-4xl font-black leading-tight"
               style={{ color: textColor }}
             >
               {currentWasteItem.name}
@@ -100,7 +100,7 @@ export const HUD: React.FC = () => {
       };
       return (
         <>
-          <div className="text-7xl filter drop-shadow-sm leading-none">
+          <div className="text-9xl filter drop-shadow-sm leading-none">
             {currentWasteItem.emoji}
           </div>
           <div className="flex flex-col gap-0.5">
@@ -111,7 +111,7 @@ export const HUD: React.FC = () => {
               FASE 2 · CONTROL DE IMPULSOS
             </div>
             <div
-              className="text-2xl font-black leading-none"
+              className="text-4xl font-black leading-tight"
               style={{ color: textColor }}
             >
               CARRIL {colorNames[laneColor] || laneColor}
@@ -132,7 +132,7 @@ export const HUD: React.FC = () => {
       const isPositive = currentWasteItem.name === "POSITIVO";
       return (
         <>
-          <div className="text-7xl filter drop-shadow-sm leading-none">
+          <div className="text-9xl filter drop-shadow-sm leading-none">
             {currentWasteItem.emoji}
           </div>
           <div className="flex flex-col gap-0.5">
@@ -143,7 +143,7 @@ export const HUD: React.FC = () => {
               FASE 3 · CLASIFICA LA EMOCIÓN
             </div>
             <div
-              className="text-2xl font-black leading-none"
+              className="text-4xl font-black leading-tight"
               style={{ color: textColor }}
             >
               {isPositive ? "😊 POSITIVO" : "😡 NEGATIVO"}
@@ -167,14 +167,14 @@ export const HUD: React.FC = () => {
   // --- Garbage mode card content ---
   const renderGarbageCard = () => (
     <>
-      <div className="text-5xl filter drop-shadow-sm">
+      <div className="text-9xl filter drop-shadow-sm">
         {currentWasteItem.emoji}
       </div>
-      <div className="flex flex-col">
-        <div className="text-xs font-bold text-slate-800 uppercase tracking-widest opacity-70">
+      <div className="flex flex-col items-center text-center">
+        <div className="text-2xl font-bold text-slate-800 uppercase tracking-widest opacity-90">
           CLASIFICA:
         </div>
-        <div className="text-2xl font-black text-slate-900 drop-shadow-sm leading-none">
+        <div className="text-4xl font-black text-slate-900 drop-shadow-sm leading-tight">
           {currentWasteItem.name}
         </div>
       </div>
@@ -184,7 +184,7 @@ export const HUD: React.FC = () => {
   return (
     <div className="absolute inset-0 pointer-events-none p-4 flex flex-col justify-between">
       {/* Active Waste Card (TOP CENTER) */}
-      <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 w-full flex justify-center">
+      <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 flex justify-center">
         <AnimatePresence mode="wait">
           <motion.div
             key={currentWasteItem.id}
@@ -192,7 +192,7 @@ export const HUD: React.FC = () => {
             animate={{ y: 0, opacity: 1, scale: 1 }}
             exit={{ y: -50, opacity: 0, scale: 0.9 }}
             transition={{ type: "spring", stiffness: 300, damping: 20 }}
-            className="px-8 py-4 rounded-2xl shadow-xl flex items-center gap-5 transition-colors duration-300"
+            className="px-10 py-6 rounded-3xl shadow-2xl inline-flex items-center justify-center gap-8 transition-colors duration-300"
             style={{
               backgroundColor: bgColor,
               border: `4px solid ${borderColor}`,
