@@ -21,12 +21,12 @@ export const HUD: React.FC = () => {
 
     return (
       <>
-        <div className="text-5xl filter drop-shadow-sm leading-none">
+        <div className="text-7xl filter drop-shadow-sm leading-none">
           {currentWasteItem.emoji}
         </div>
         <div className="flex flex-col gap-0.5">
           <div
-            className="text-[10px] font-bold uppercase tracking-widest opacity-75"
+            className="text-sm font-bold uppercase tracking-widest opacity-90"
             style={{ color: textColor }}
           >
             ENGLISH · ENCUENTRA LA PALABRA
@@ -63,12 +63,12 @@ export const HUD: React.FC = () => {
       // Phase 1: Show the emotion the player must classify
       return (
         <>
-          <div className="text-5xl filter drop-shadow-sm leading-none">
+          <div className="text-7xl filter drop-shadow-sm leading-none">
             {currentWasteItem.emoji}
           </div>
           <div className="flex flex-col gap-0.5">
             <div
-              className="text-[10px] font-bold uppercase tracking-widest opacity-75"
+              className="text-sm font-bold uppercase tracking-widest opacity-90"
               style={{ color: textColor }}
             >
               FASE 1 · IDENTIFICA LA EMOCIÓN
@@ -80,7 +80,7 @@ export const HUD: React.FC = () => {
               {currentWasteItem.name}
             </div>
             <div
-              className="text-[10px] font-semibold opacity-60"
+              className="text-lg font-semibold opacity-90"
               style={{ color: textColor }}
             >
               ¿En qué carril va esta emoción?
@@ -100,12 +100,12 @@ export const HUD: React.FC = () => {
       };
       return (
         <>
-          <div className="text-5xl filter drop-shadow-sm leading-none">
+          <div className="text-7xl filter drop-shadow-sm leading-none">
             {currentWasteItem.emoji}
           </div>
           <div className="flex flex-col gap-0.5">
             <div
-              className="text-[10px] font-bold uppercase tracking-widest opacity-75"
+              className="text-sm font-bold uppercase tracking-widest opacity-90"
               style={{ color: textColor }}
             >
               FASE 2 · CONTROL DE IMPULSOS
@@ -117,7 +117,7 @@ export const HUD: React.FC = () => {
               CARRIL {colorNames[laneColor] || laneColor}
             </div>
             <div
-              className="text-[10px] font-semibold opacity-60"
+              className="text-lg font-semibold opacity-90"
               style={{ color: textColor }}
             >
               ⚠️ Cuidado con el carril trampa
@@ -132,12 +132,12 @@ export const HUD: React.FC = () => {
       const isPositive = currentWasteItem.name === "POSITIVO";
       return (
         <>
-          <div className="text-5xl filter drop-shadow-sm leading-none">
+          <div className="text-7xl filter drop-shadow-sm leading-none">
             {currentWasteItem.emoji}
           </div>
           <div className="flex flex-col gap-0.5">
             <div
-              className="text-[10px] font-bold uppercase tracking-widest opacity-75"
+              className="text-sm font-bold uppercase tracking-widest opacity-90"
               style={{ color: textColor }}
             >
               FASE 3 · CLASIFICA LA EMOCIÓN
@@ -149,7 +149,7 @@ export const HUD: React.FC = () => {
               {isPositive ? "😊 POSITIVO" : "😡 NEGATIVO"}
             </div>
             <div
-              className="text-[10px] font-semibold opacity-60"
+              className="text-lg font-semibold opacity-90"
               style={{ color: textColor }}
             >
               {isPositive
