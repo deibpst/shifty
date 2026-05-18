@@ -13,6 +13,7 @@ const COLOR_TO_LANE: Record<string, number> = {
 // Global reference to the writable stream so we can send messages from anywhere
 let serialWriter: WritableStreamDefaultWriter<string> | null = null;
 export let isSerialConnected = false;
+let lastMenuActionTime = 0;
 
 /**
  * Parses a single text line from the ESP32 (e.g., "btn:green") 
@@ -26,9 +27,81 @@ function handleSerialMessage(line: string) {
     if (trimmed.startsWith('btn:')) {
         const button = trimmed.substring(4); // e.g., "green"
 
-        const setLane = useGameStore.getState().setLane;
-        const togglePause = useGameStore.getState().togglePause;
-        const toggleMute = useGameStore.getState().toggleMute;
+        const state = useGameStore.getState();
+        const setLane = state.setLane;
+        const togglePause = state.togglePause;
+        const toggleMute = state.toggleMute;
+        const setGameStatus = state.setGameStatus;
+        const gameStatus = state.gameStatus;
+        const startGame = state.startGame;
+
+        // Debounce / Throttle preventer for menus
+        // Prevents holding a button from instantly clicking through multiple nested menus.
+        const isMenuState = gameStatus === 'menu' || gameStatus === 'categorySelect' || gameStatus === 'customizing' || gameStatus === 'gameover' || state.isPaused;
+        if (isMenuState) {
+            const now = Date.now();
+            if (now - lastMenuActionTime < 150) {
+                return; // Ignore rapid fires in menus
+            }
+            lastMenuActionTime = now;
+        }
+
+        // Navigation in Pause Menu
+        if (state.isPaused) {
+            if (button === 'green' || button === 'pause') {
+                togglePause();
+                return;
+            }
+            if (button === 'red' || button === 'orange') {
+                togglePause(); // Remove pause completely before navigating away
+                setGameStatus('menu');
+                return;
+            }
+            if (button === 'sound') {
+                toggleMute();
+                return;
+            }
+            // Ignore any lane changes or UI interactions while paused
+            return;
+        }
+
+        // Navigation in Game Over
+        if (gameStatus === 'gameover') {
+            if (button === 'red' || button === 'orange') {
+                setGameStatus('menu');
+                return;
+            }
+            if (button === 'green') {
+                startGame();
+                return;
+            }
+            // Ignore other buttons while in game over
+            return;
+        }
+
+        // Navigation in Main Menu
+        if (gameStatus === 'menu') {
+            if (button === 'green') {
+                setGameStatus('categorySelect');
+                return;
+            }
+            if (button === 'blue' || button === 'purple') {
+                setGameStatus('customizing');
+                return;
+            }
+        }
+
+        // Navigation in Category Select
+        if (gameStatus === 'categorySelect') {
+            window.dispatchEvent(new CustomEvent('serial:categorySelect', { detail: button }));
+            return;
+        }
+
+        // Navigation in Customizer
+        if (gameStatus === 'customizing') {
+            window.dispatchEvent(new CustomEvent('serial:customizer', { detail: button }));
+            return;
+        }
 
         if (button === 'pause') {
             togglePause();
