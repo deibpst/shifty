@@ -69,7 +69,7 @@ export const CategorySelect: React.FC = () => {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={handleGarbage}
-            className="flex-1 p-8 rounded-3xl bg-gradient-to-br from-green-400/90 to-emerald-600/90 text-white shadow-[0_0_30px_rgba(34,197,94,0.4)] border-4 border-white/20 backdrop-blur-sm flex flex-col items-center gap-4 group transition-all"
+            className="flex-1 p-8 rounded-3xl bg-gradient-to-br from-green-400/90 to-emerald-600/90 text-white shadow-[0_0_30px_rgba(34,197,94,0.4)] border-4 border-white/50 backdrop-blur-sm flex flex-col items-center gap-4 group transition-all"
           >
             <div className="text-8xl group-hover:scale-110 transition-transform">
               ♻️
@@ -77,7 +77,7 @@ export const CategorySelect: React.FC = () => {
             <h3 className="text-3xl font-black uppercase tracking-wide">
               Recolección de Basura
             </h3>
-            <p className="text-green-100 font-medium">
+            <p className="text-white font-semibold text-lg drop-shadow-md">
               Limpia la ciudad clasificando residuos a toda velocidad.
             </p>
           </motion.button>
@@ -87,7 +87,7 @@ export const CategorySelect: React.FC = () => {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={handleMindShift}
-            className="flex-1 p-8 rounded-3xl bg-gradient-to-br from-blue-400/90 to-blue-600/90 text-white shadow-[0_0_30px_rgba(59,130,246,0.4)] border-4 border-white/20 backdrop-blur-sm flex flex-col items-center gap-4 group transition-all"
+            className="flex-1 p-8 rounded-3xl bg-gradient-to-br from-blue-400/90 to-blue-600/90 text-white shadow-[0_0_30px_rgba(59,130,246,0.4)] border-4 border-white/50 backdrop-blur-sm flex flex-col items-center gap-4 group transition-all"
           >
             <div className="text-8xl group-hover:scale-110 transition-transform">
               🧠
@@ -95,7 +95,7 @@ export const CategorySelect: React.FC = () => {
             <h3 className="text-3xl font-black uppercase tracking-wide">
               MindShift
             </h3>
-            <p className="text-blue-100 font-medium">
+            <p className="text-white font-semibold text-lg drop-shadow-md">
               Entrena tu mente, emociones y control de impulsos.
             </p>
           </motion.button>
@@ -104,15 +104,15 @@ export const CategorySelect: React.FC = () => {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={handleEnglish}
-            className="flex-1 p-8 rounded-3xl bg-gradient-to-br from-yellow-400/90 to-orange-500/90 text-white shadow-[0_0_30px_rgba(234,179,8,0.4)] border-4 border-white/20 backdrop-blur-sm flex flex-col items-center gap-4 group transition-all"
+            className="flex-1 p-8 rounded-3xl bg-gradient-to-br from-yellow-400/90 to-orange-500/90 text-white shadow-[0_0_30px_rgba(234,179,8,0.4)] border-4 border-white/50 backdrop-blur-sm flex flex-col items-center gap-4 group transition-all"
           >
             <div className="text-8xl group-hover:scale-110 transition-transform">
-              🇺🇸
+              🔤
             </div>
             <h3 className="text-3xl font-black uppercase tracking-wide">
               English Basic
             </h3>
-            <p className="text-yellow-100 font-medium">
+            <p className="text-white font-semibold text-lg drop-shadow-md">
               Relaciona emojis con su palabra correcta en inglés.
             </p>
           </motion.button>

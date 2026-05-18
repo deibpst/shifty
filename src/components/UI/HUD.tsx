@@ -171,16 +171,21 @@ export const HUD: React.FC = () => {
         {currentWasteItem.emoji}
       </div>
       <div className="flex flex-col items-center text-center">
-        <div className="text-2xl font-bold text-slate-800 uppercase tracking-widest opacity-90">
+        <div
+          className="text-sm font-bold uppercase tracking-widest opacity-90"
+          style={{ color: textColor }}
+        >
           CLASIFICA:
         </div>
-        <div className="text-4xl font-black text-slate-900 drop-shadow-sm leading-tight">
+        <div
+          className="text-4xl font-black drop-shadow-sm leading-tight"
+          style={{ color: textColor }}
+        >
           {currentWasteItem.name}
         </div>
       </div>
     </>
   );
-
   return (
     <div className="absolute inset-0 pointer-events-none p-4 flex flex-col justify-between">
       {/* Active Waste Card (TOP CENTER) */}
@@ -210,8 +215,8 @@ export const HUD: React.FC = () => {
 
       {/* MindShift Phase Indicator */}
       {gameMode === "mindshift" && (
-        <div className="absolute top-4 right-4 z-10 pointer-events-none">
-          <div className="flex gap-2">
+        <div className="absolute top-20 right-4 z-10 pointer-events-none">
+          <div className="flex gap-3">
             {[1, 2, 3].map((p) => (
               <div
                 key={p}
@@ -294,15 +299,15 @@ function getPastelColor(color: string) {
 function getBorderColor(color: string) {
   switch (color) {
     case "green":
-      return "#86efac";
+      return "#15803d";
     case "blue":
-      return "#93c5fd";
+      return "#1d4ed8";
     case "yellow":
-      return "#fde047";
+      return "#a16207";
     case "red":
-      return "#fca5a5";
+      return "#b91c1c";
     default:
-      return "#cbd5e1";
+      return "#475569";
   }
 }
 
