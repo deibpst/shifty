@@ -40,6 +40,7 @@ interface GameState {
   mindshiftPlaysInPhase: number;
   mindshiftStats: MindshiftStatItem[];
   mindshiftItemSpawnTime: number;
+  mindshiftItemHistory: LaneColor[];
 
   // Actions
   setGameMode: (mode: GameMode) => void;
@@ -413,6 +414,7 @@ export const useGameStore = create<GameState>((set, get) => ({
   mindshiftPlaysInPhase: 0,
   mindshiftStats: [],
   mindshiftItemSpawnTime: 0,
+  mindshiftItemHistory: [],
 
   // Character System
   selectedCharacterId:
@@ -436,30 +438,38 @@ export const useGameStore = create<GameState>((set, get) => ({
   generateMindshiftItem: (phase) => {
     const config = DIFFICULTY_CONFIG[get().difficulty];
     const colors = config.colors;
+    const history = get().mindshiftItemHistory;
+
+    // Helper: pick a color from candidates respecting cooldown history
+    const pickColor = (candidates: LaneColor[]): LaneColor => {
+      const maxHistory = Math.min(4, candidates.length - 1);
+      const recentHistory = history.slice(-maxHistory);
+      const available = candidates.filter(c => !recentHistory.includes(c));
+      const pool = available.length > 0 ? available : candidates;
+      return pool[Math.floor(Math.random() * pool.length)];
+    };
 
     let newItem: WasteItem;
     const id = Math.random().toString(36).substr(2, 9);
+    let chosenColor: LaneColor;
 
     if (phase === 1) {
-      // Pick a random lane, then use the emotion TIED to that lane color
-      const chosenLaneIdx = Math.floor(Math.random() * colors.length);
-      const chosenColor = colors[chosenLaneIdx];
+      chosenColor = pickColor(colors);
       const targetEmotion = EMOTION_LANE_MAP[chosenColor];
 
       newItem = {
         id,
-        name: targetEmotion.name, // Show actual emotion name (not generic 'EMOCIÓN')
+        name: targetEmotion.name,
         type: "mindshift",
-        correctLaneColor: chosenColor, // Tied to the emotion via EMOTION_LANE_MAP
-        emoji: targetEmotion.emoji, // Matching emoji for that emotion
+        correctLaneColor: chosenColor,
+        emoji: targetEmotion.emoji,
         mindshiftEmotion: targetEmotion.name,
       };
     } else if (phase === 2) {
-      const chosenLaneIdx = Math.floor(Math.random() * colors.length);
-      const targetColor = colors[chosenLaneIdx];
+      chosenColor = pickColor(colors);
 
       let distractorIdx = Math.floor(Math.random() * colors.length);
-      while (distractorIdx === chosenLaneIdx) {
+      while (colors[distractorIdx] === chosenColor) {
         distractorIdx = Math.floor(Math.random() * colors.length);
       }
 
@@ -469,39 +479,42 @@ export const useGameStore = create<GameState>((set, get) => ({
         yellow: "AMARILLO",
         red: "ROJO",
       };
-      // Also show the emotion associated with the target lane
-      const laneEmotion = EMOTION_LANE_MAP[targetColor];
+      const laneEmotion = EMOTION_LANE_MAP[chosenColor];
 
       newItem = {
         id,
-        name: `VE AL CARRIL ${colorNames[targetColor]}`,
+        name: `VE AL CARRIL ${colorNames[chosenColor]}`,
         type: "mindshift",
-        correctLaneColor: targetColor,
+        correctLaneColor: chosenColor,
         emoji: laneEmotion ? laneEmotion.emoji : "🎯",
         mindshiftDistractorLane: colors[distractorIdx],
       };
     } else {
-      // Phase 3: Positive vs Negative — use first lane (green) for POSITIVO,
-      // last available lane for NEGATIVO (works for easy/medium/hard)
-      const isPositive = Math.random() > 0.5;
+      // Phase 3: only 2 options — positive (first lane) or negative (last lane)
+      const phaseOptions: LaneColor[] = [colors[0], colors[colors.length - 1]];
+      chosenColor = pickColor(phaseOptions);
+      const isPositive = chosenColor === colors[0];
       const posEmojis = ["🥰", "😁", "🤩", "😇"];
       const negEmojis = ["🤬", "😭", "🤢", "👺"];
       const emoji = isPositive
         ? posEmojis[Math.floor(Math.random() * posEmojis.length)]
         : negEmojis[Math.floor(Math.random() * negEmojis.length)];
 
-      // First lane = positive (green), last lane = negative (red/rightmost)
-      const correctColor = isPositive ? colors[0] : colors[colors.length - 1];
-
       newItem = {
         id,
         name: isPositive ? "POSITIVO" : "NEGATIVO",
         type: "mindshift",
-        correctLaneColor: correctColor,
+        correctLaneColor: chosenColor,
         emoji,
         mindshiftEmotion: isPositive ? "POSITIVO" : "NEGATIVO",
       };
     }
+
+    // Update history
+    const maxHistory = Math.min(4, (phase === 3 ? 2 : colors.length) - 1);
+    const updatedHistory = [...history, chosenColor].slice(-maxHistory);
+    set({ mindshiftItemHistory: updatedHistory });
+
     return newItem;
   },
 
@@ -529,6 +542,7 @@ export const useGameStore = create<GameState>((set, get) => ({
       mindshiftPlaysInPhase: 0,
       mindshiftStats: [],
       mindshiftItemSpawnTime: Date.now(),
+      mindshiftItemHistory: [],
     });
   },
 

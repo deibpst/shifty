@@ -25,6 +25,8 @@ export const WasteManager: React.FC = () => {
     const [renderableObjects, setRenderableObjects] = useState<WasteObjectData[]>([]);
     const lastSpawnTime = useRef(0);
     const lastSpawnedMindshiftItemId = useRef('');
+    const spawnHistoryRef = useRef<string[]>([]);
+    const sinceLastTargetRef = useRef(0);
 
     // Bug 3 Fix: Limpiar carriles al cambiar de modo (cuando inicia el playing)
     React.useEffect(() => {
@@ -32,6 +34,8 @@ export const WasteManager: React.FC = () => {
             objectsDataRef.current = [];
             setRenderableObjects([]);
             lastSpawnedMindshiftItemId.current = '';
+            spawnHistoryRef.current = [];
+            sinceLastTargetRef.current = 0;
         }
     }, [gameStatus]);
 
@@ -102,10 +106,66 @@ export const WasteManager: React.FC = () => {
             if (time - lastSpawnTime.current > SPAWN_INTERVAL / speedMultiplier) {
                 lastSpawnTime.current = time;
 
-                // ORIGINAL GARBAGE SPAWNING LOGIC
-                const lane = Math.floor(Math.random() * config.laneCount);
-                const laneColor = config.colors[lane];
-                const isObstacle = Math.random() > 0.7;
+                // Build all possible type keys: one per lane color + obstacle
+                const allTypeKeys = ['obstacle', ...config.colors.map(c => `bin-${c}`)];
+                // Cooldown window capped so there are always types available
+                const maxHistorySize = Math.min(4, allTypeKeys.length - 1);
+
+                // Filter out recently spawned types
+                const available = allTypeKeys.filter(k => !spawnHistoryRef.current.includes(k));
+                const pool = available.length > 0 ? available : allTypeKeys;
+
+                const storeState = useGameStore.getState();
+                const targetKey = storeState.currentWasteItem
+                    ? `bin-${storeState.currentWasteItem.correctLaneColor}`
+                    : null;
+                const targetInPool = targetKey !== null && pool.includes(targetKey);
+                const targetOverdue = sinceLastTargetRef.current >= 4;
+
+                let chosenKey: string;
+                if (targetInPool && targetOverdue) {
+                    // Force target: too long without a valid object
+                    chosenKey = targetKey!;
+                } else {
+                    // Weighted selection: target gets 2x weight when available
+                    const weights = pool.map(k => (k === targetKey && targetInPool ? 2 : 1));
+                    const totalWeight = weights.reduce((s, w) => s + w, 0);
+                    let rand = Math.random() * totalWeight;
+                    chosenKey = pool[pool.length - 1];
+                    for (let i = 0; i < pool.length; i++) {
+                        rand -= weights[i];
+                        if (rand <= 0) { chosenKey = pool[i]; break; }
+                    }
+                }
+
+                // Update history
+                spawnHistoryRef.current.push(chosenKey);
+                if (spawnHistoryRef.current.length > maxHistorySize) {
+                    spawnHistoryRef.current.shift();
+                }
+
+                // Track how long since a correct target spawned
+                if (chosenKey === targetKey) {
+                    sinceLastTargetRef.current = 0;
+                } else {
+                    sinceLastTargetRef.current++;
+                }
+
+                // Resolve key → lane index, color, type
+                let lane: number;
+                let laneColor: (typeof config.colors)[number] | undefined;
+                let isObstacle: boolean;
+
+                if (chosenKey === 'obstacle') {
+                    isObstacle = true;
+                    lane = Math.floor(Math.random() * config.laneCount);
+                    laneColor = undefined;
+                } else {
+                    isObstacle = false;
+                    laneColor = chosenKey.replace('bin-', '') as (typeof config.colors)[number];
+                    lane = config.colors.indexOf(laneColor);
+                    if (lane === -1) lane = 0;
+                }
 
                 const newObj: WasteObjectData = {
                     id: Math.random().toString(36).substr(2, 9),
