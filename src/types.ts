@@ -37,6 +37,7 @@ export interface WasteItem {
   // Especifico para Mindshift
   mindshiftEmotion?: string;
   mindshiftDistractorLane?: LaneColor; // Carril tramposo (Fase 2)
+  mindshiftCardColor?: LaneColor; // Color de la tarjeta (Stroop)
   mindshiftLabelText?: string; // Texto a mostrar
 }
 

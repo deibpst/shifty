@@ -25,3 +25,8 @@ interface Serial {
 interface Navigator {
     serial: Serial;
 }
+
+interface GLTFAction extends import('three').AnimationClip {
+    name: string;
+}
+

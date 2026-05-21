@@ -410,7 +410,7 @@ export const useGameStore = create<GameState>((set, get) => ({
 
   // Mindshift Initial State
   gameMode: "garbage",
-  mindshiftPhase: 1,
+  mindshiftPhase: 2,
   mindshiftPlaysInPhase: 0,
   mindshiftStats: [],
   mindshiftItemSpawnTime: 0,
@@ -468,10 +468,16 @@ export const useGameStore = create<GameState>((set, get) => ({
     } else if (phase === 2) {
       chosenColor = pickColor(colors);
 
-      let distractorIdx = Math.floor(Math.random() * colors.length);
-      while (colors[distractorIdx] === chosenColor) {
-        distractorIdx = Math.floor(Math.random() * colors.length);
+      // Distractor color must be different from chosenColor
+      const distractorCandidates = colors.filter(c => c !== chosenColor);
+      const distractorColor = distractorCandidates[Math.floor(Math.random() * distractorCandidates.length)];
+
+      // Card color must be different from chosenColor, and if possible, different from distractorColor
+      let cardCandidates = colors.filter(c => c !== chosenColor);
+      if (cardCandidates.length > 1) {
+        cardCandidates = cardCandidates.filter(c => c !== distractorColor);
       }
+      const cardColor = cardCandidates[Math.floor(Math.random() * cardCandidates.length)];
 
       const colorNames: Record<string, string> = {
         green: "VERDE",
@@ -479,15 +485,15 @@ export const useGameStore = create<GameState>((set, get) => ({
         yellow: "AMARILLO",
         red: "ROJO",
       };
-      const laneEmotion = EMOTION_LANE_MAP[chosenColor];
 
       newItem = {
         id,
-        name: `VE AL CARRIL ${colorNames[chosenColor]}`,
+        name: `CARRIL ${colorNames[chosenColor]}`,
         type: "mindshift",
         correctLaneColor: chosenColor,
-        emoji: laneEmotion ? laneEmotion.emoji : "🎯",
-        mindshiftDistractorLane: colors[distractorIdx],
+        emoji: "",
+        mindshiftDistractorLane: distractorColor,
+        mindshiftCardColor: cardColor,
       };
     } else {
       // Phase 3: only 2 options — positive (first lane) or negative (last lane)
@@ -525,7 +531,7 @@ export const useGameStore = create<GameState>((set, get) => ({
 
     const initialItem =
       gameMode === "mindshift"
-        ? generateMindshiftItem(1)
+        ? generateMindshiftItem(2)
         : gameMode === "english"
           ? generateEnglishItem()
           : WASTE_ITEMS[Math.floor(Math.random() * WASTE_ITEMS.length)];
@@ -538,7 +544,7 @@ export const useGameStore = create<GameState>((set, get) => ({
       currentLane: startLane,
       currentWasteItem: initialItem,
       isPaused: false,
-      mindshiftPhase: 1,
+      mindshiftPhase: 2,
       mindshiftPlaysInPhase: 0,
       mindshiftStats: [],
       mindshiftItemSpawnTime: Date.now(),
@@ -685,15 +691,11 @@ export const useGameStore = create<GameState>((set, get) => ({
         return;
       }
 
-      let newPhase = mindshiftPhase;
+      let newPhase = 2;
       let ended = false;
 
       if (newPlays >= PLAYS_PER_PHASE) {
-        if (mindshiftPhase < 3) {
-          newPhase = mindshiftPhase + 1;
-        } else {
-          ended = true;
-        }
+        ended = true;
       }
 
       if (ended) {

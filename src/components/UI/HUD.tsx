@@ -3,15 +3,19 @@ import { useGameStore } from "../../store";
 import { motion, AnimatePresence } from "framer-motion";
 
 export const HUD: React.FC = () => {
-  const { score, lives, currentWasteItem, gameMode, mindshiftPhase } =
+  const { score, lives, currentWasteItem, gameMode } =
     useGameStore();
 
   if (!currentWasteItem) return null;
 
   const laneColor = currentWasteItem.correctLaneColor;
-  const bgColor = getPastelColor(laneColor);
-  const borderColor = getBorderColor(laneColor);
-  const textColor = getTextColor(laneColor);
+  const cardStylingColor = (gameMode === "mindshift" && currentWasteItem.mindshiftCardColor)
+    ? currentWasteItem.mindshiftCardColor
+    : laneColor;
+
+  const bgColor = getPastelColor(cardStylingColor);
+  const borderColor = getBorderColor(cardStylingColor);
+  const textColor = getTextColor(cardStylingColor);
 
   const renderEnglishCard = () => {
     // Las opciones están guardadas como JSON en mindshiftEmotion
@@ -59,109 +63,35 @@ export const HUD: React.FC = () => {
 
   // --- Build MindShift card content based on phase ---
   const renderMindshiftCard = () => {
-    if (mindshiftPhase === 1) {
-      // Phase 1: Show the emotion the player must classify
-      return (
-        <>
-          <div className="text-9xl filter drop-shadow-sm leading-none">
-            {currentWasteItem.emoji}
-          </div>
-          <div className="flex flex-col gap-0.5">
-            <div
-              className="text-sm font-bold uppercase tracking-widest opacity-90"
-              style={{ color: textColor }}
-            >
-              FASE 1 · IDENTIFICA LA EMOCIÓN
-            </div>
-            <div
-              className="text-4xl font-black leading-tight"
-              style={{ color: textColor }}
-            >
-              {currentWasteItem.name}
-            </div>
-            <div
-              className="text-lg font-semibold opacity-90"
-              style={{ color: textColor }}
-            >
-              ¿En qué carril va esta emoción?
-            </div>
-          </div>
-        </>
-      );
-    }
-
-    if (mindshiftPhase === 2) {
-      // Phase 2: Go to the correct color lane (with distractor)
-      const colorNames: Record<string, string> = {
-        green: "VERDE",
-        blue: "AZUL",
-        yellow: "AMARILLO",
-        red: "ROJO",
-      };
-      return (
-        <>
-          <div className="text-9xl filter drop-shadow-sm leading-none">
-            {currentWasteItem.emoji}
-          </div>
-          <div className="flex flex-col gap-0.5">
-            <div
-              className="text-sm font-bold uppercase tracking-widest opacity-90"
-              style={{ color: textColor }}
-            >
-              FASE 2 · CONTROL DE IMPULSOS
-            </div>
-            <div
-              className="text-4xl font-black leading-tight"
-              style={{ color: textColor }}
-            >
-              CARRIL {colorNames[laneColor] || laneColor}
-            </div>
-            <div
-              className="text-lg font-semibold opacity-90"
-              style={{ color: textColor }}
-            >
-              ⚠️ Cuidado con el carril trampa
-            </div>
-          </div>
-        </>
-      );
-    }
-
-    if (mindshiftPhase === 3) {
-      // Phase 3: Classify as positive or negative
-      const isPositive = currentWasteItem.name === "POSITIVO";
-      return (
-        <>
-          <div className="text-9xl filter drop-shadow-sm leading-none">
-            {currentWasteItem.emoji}
-          </div>
-          <div className="flex flex-col gap-0.5">
-            <div
-              className="text-sm font-bold uppercase tracking-widest opacity-90"
-              style={{ color: textColor }}
-            >
-              FASE 3 · CLASIFICA LA EMOCIÓN
-            </div>
-            <div
-              className="text-4xl font-black leading-tight"
-              style={{ color: textColor }}
-            >
-              {isPositive ? "😊 POSITIVO" : "😡 NEGATIVO"}
-            </div>
-            <div
-              className="text-lg font-semibold opacity-90"
-              style={{ color: textColor }}
-            >
-              {isPositive
-                ? "Ve al carril verde (izquierda)"
-                : "Ve al carril rojo (derecha)"}
-            </div>
-          </div>
-        </>
-      );
-    }
-
-    return null;
+    // Mindshift is now only Phase 2: Go to the correct color lane (with distractor)
+    const colorNames: Record<string, string> = {
+      green: "VERDE",
+      blue: "AZUL",
+      yellow: "AMARILLO",
+      red: "ROJO",
+    };
+    return (
+      <div className="flex flex-col gap-0.5 items-center text-center">
+        <div
+          className="text-sm font-bold uppercase tracking-widest opacity-90"
+          style={{ color: textColor }}
+        >
+          MINDSHIFT · CONTROL DE IMPULSOS
+        </div>
+        <div
+          className="text-4xl font-black leading-tight"
+          style={{ color: textColor }}
+        >
+          CARRIL {colorNames[laneColor] || laneColor}
+        </div>
+        <div
+          className="text-lg font-semibold opacity-90"
+          style={{ color: textColor }}
+        >
+          ⚠️ Cuidado con el carril trampa
+        </div>
+      </div>
+    );
   };
 
   // --- Garbage mode card content ---
@@ -213,32 +143,7 @@ export const HUD: React.FC = () => {
         </AnimatePresence>
       </div>
 
-      {/* MindShift Phase Indicator */}
-      {gameMode === "mindshift" && (
-        <div className="absolute top-20 right-4 z-10 pointer-events-none">
-          <div className="flex gap-3">
-            {[1, 2, 3].map((p) => (
-              <div
-                key={p}
-                className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-black shadow-md transition-all duration-300"
-                style={{
-                  backgroundColor:
-                    p === mindshiftPhase ? "#7c3aed" : "rgba(255,255,255,0.25)",
-                  color:
-                    p === mindshiftPhase ? "#fff" : "rgba(255,255,255,0.6)",
-                  border:
-                    p === mindshiftPhase
-                      ? "2px solid #a78bfa"
-                      : "2px solid rgba(255,255,255,0.2)",
-                  transform: p === mindshiftPhase ? "scale(1.2)" : "scale(1)",
-                }}
-              >
-                {p}
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+      {/* MindShift Phase Indicator removed as it's a single-phase mode now */}
 
       {/* Top Bar: Score & Lives (Sides) */}
       <div className="flex justify-between items-start w-full">
