@@ -93,7 +93,7 @@ export const CategorySelect: React.FC = () => {
               🧠
             </div>
             <h3 className="text-3xl font-black uppercase tracking-wide">
-              MindShift
+              Focus maxing
             </h3>
             <p className="text-white font-semibold text-lg drop-shadow-md">
               Entrena tu mente y controla tus impulsos.
