@@ -96,7 +96,7 @@ export const CategorySelect: React.FC = () => {
               MindShift
             </h3>
             <p className="text-white font-semibold text-lg drop-shadow-md">
-              Entrena tu mente, emociones y control de impulsos.
+              Entrena tu mente y controla tus impulsos.
             </p>
           </motion.button>
 
